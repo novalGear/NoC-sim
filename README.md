@@ -16,3 +16,4 @@
 
 2. **William J. Dally** and **Brian Towles**, *Principles and Practices of Interconnection Networks*. Morgan Kaufmann, 2004.
 
+3. **Grigoriy Rechistov**, *Программное моделирование вычислительных систем*. https://github.com/grigory-rechistov/simbook/raw/master/metoda/main-web.pdf
