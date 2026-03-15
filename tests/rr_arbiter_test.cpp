@@ -6,8 +6,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/rr_arbiter.hpp"
-#include "../src/packet.hpp"
+#include "rr_arbiter.hpp"
+#include "packet.hpp"
 
 /**
  * @class RRArbiterTest
@@ -36,7 +36,7 @@ TEST_F(RRArbiterTest, SingleRequestWins) {
     int winner = arbiter.arbitrate(reqs, 0);
 
     EXPECT_EQ(winner, 0); // Индекс в векторе
-    EXPECT_EQ(reqs[winner].src_port_idx, 2);
+    EXPECT_EQ(reqs[winner].src, 2);
 }
 
 // === Тесты алгоритма Round-Robin ===
@@ -51,23 +51,23 @@ TEST_F(RRArbiterTest, RoundRobin_CyclicOrder) {
 
     // Такт 1: голова=0 → побеждает порт 0
     int w1 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w1].src_port_idx, 0);
+    EXPECT_EQ(reqs[w1].src, 0);
 
     // Такт 2: голова=1 → побеждает порт 1
     int w2 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w2].src_port_idx, 1);
+    EXPECT_EQ(reqs[w2].src, 1);
 
     // Такт 3: голова=2 → побеждает порт 2
     int w3 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w3].src_port_idx, 2);
+    EXPECT_EQ(reqs[w3].src, 2);
 
     // Такт 4: голова=3 → побеждает порт 3
     int w4 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w4].src_port_idx, 3);
+    EXPECT_EQ(reqs[w4].src, 3);
 
     // Такт 5: голова=0 (цикл замкнулся) → снова порт 0
     int w5 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w5].src_port_idx, 0);
+    EXPECT_EQ(reqs[w5].src, 0);
 }
 
 TEST_F(RRArbiterTest, RoundRobin_SkipsNonRequesting) {
@@ -78,14 +78,14 @@ TEST_F(RRArbiterTest, RoundRobin_SkipsNonRequesting) {
     // dist(3) = (3+4-0)%4 = 3
     // Побеждает порт 1 (меньшее расстояние)
     int w1 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w1].src_port_idx, 1);
+    EXPECT_EQ(reqs[w1].src, 1);
 
     // Теперь голова = 2
     // dist(1) = (1+4-2)%4 = 3
     // dist(3) = (3+4-2)%4 = 1
     // Побеждает порт 3
     int w2 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w2].src_port_idx, 3);
+    EXPECT_EQ(reqs[w2].src, 3);
 }
 
 TEST_F(RRArbiterTest, NoStarvation) {
@@ -95,17 +95,17 @@ TEST_F(RRArbiterTest, NoStarvation) {
 
     // Порт 0 выигрывает первый раз (dist=0)
     int w1 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w1].src_port_idx, 0);
+    EXPECT_EQ(reqs[w1].src, 0);
 
     // Голова сдвинулась на 1. Теперь:
     // dist(0) = 3, dist(2) = 1 → побеждает порт 2
     int w2 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w2].src_port_idx, 2);
+    EXPECT_EQ(reqs[w2].src, 2);
 
     // Голова = 3.
     // dist(0) = 1, dist(2) = 3 → снова побеждает порт 0
     int w3 = arbiter.arbitrate(reqs, 0);
-    EXPECT_EQ(reqs[w3].src_port_idx, 0);
+    EXPECT_EQ(reqs[w3].src, 0);
 
     // Порт 0 не голодает, хотя порт 2 тоже постоянно запрашивает
 }
@@ -121,5 +121,5 @@ TEST_F(RRArbiterTest, OutputPortIdIgnored) {
 
     // Результат должен быть одинаковым
     EXPECT_EQ(r1, r2);
-    EXPECT_EQ(reqs[r1].src_port_idx, 1);
+    EXPECT_EQ(reqs[r1].src, 1);
 }

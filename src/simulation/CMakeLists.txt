@@ -2,15 +2,15 @@
 # Simulation (JNI Wrapper)
 # =========================================================
 
-# определение путей
+# 1. Определение путей
 set(JAVA_SRC_DIR "${CMAKE_SOURCE_SIR}/src/interface")
 set(JAVA_MAIN_CLASS "InterconnectGUI")
 set(JAVA_PACKAGE_PATH "${JAVA_SRC_DIR}/${JAVA_MAIN_CLASS}.java")
 
 # note: имя сгенерированного header будет другим, если оформим .java в package
-set(GENERATED_JNI_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/InterconnectGUI.hpp")
+set(GENERATED_JNI_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/InterconnectGUI.h")
 
-# Генерация JNI header
+# 2. Генерация JNI header
 
 add_custom_command(
     OUTPUT ${GENERATED_JNI_HEADER}
@@ -25,16 +25,20 @@ add_custom_command(
     VERBATIM
 )
 
-# Сборка Shared Library (.so)
+add_custom_target(generate_jni_header
+    DEPENDS ${GENERATED_JNI_HEADER}
+)
+
+# 3. Сборка Shared Library (.so)
 
 set(SIMULATION_SOURCES
     jni_wrapper.cpp
     InterconnectSimulator.cpp
 )
 
-target_include_directories(JNIdll SHARED $(SIMULATION_SOURCES))
+add_library(JNIdll SHARED ${SIMULATION_SOURCES})
 
-# include directories
+# 4. Include directories
 
 target_include_directories(JNIdll
     PRIVATE
@@ -42,21 +46,21 @@ target_include_directories(JNIdll
         ${NOC_SIM_JNI_INCLUDES}                 # jni.h
 )
 
-# Linkage
+# 5. Linkage
 target_link_libraries(JNIdll
     PRIVATE
         ${NOC_SIM_JVM_LIBRARY}
         interconnect_core
 )
 
-# Properties
+# 6. Properties
 set_target_properties(JNIdll PROPERTIES
     PREFIX "lib"                                # Linux требует префикс lib
     OUTPUT_NAME "JNIdll"                        # имя файла libJNIdll.so
     LIBRARY_OUTPUT_DIRECTORY ${NOC_SIM_LIB_DIR} # куда положить .so (build_output/lib)
 )
 
-# Dependencies
-add_dependencies(JNIdll ${GENERATED_JNI_HEADER})
+# 7. Dependencies
+add_dependencies(JNIdll generate_jni_header)
 
 message(STATUS "Configured JNI Simulation module. Header: ${GENERATED_JNI_HEADER}")

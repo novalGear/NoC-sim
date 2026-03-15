@@ -82,7 +82,7 @@ public:
      * После выбора обновляет внутреннее состояние (голову) для обеспечения справедливости Round-Robin.
      *
      * @note Возвращаемое значение — это индекс в векторе `requests`, а не номер физического порта!
-     *       Чтобы получить номер порта: `requests[result].src_port_idx`.
+     *       Чтобы получить номер порта: `requests[result].src`.
      *
      * @retval -1 Если вектор `requests` пуст.
      * @retval >=0 Индекс элемента в векторе `requests`, который выиграл арбитраж.
@@ -96,7 +96,7 @@ public:
         int min_dist = src_ports_count + 1;
 
         for (int i = 0; i < static_cast<int>(requests.size()); ++i) {
-            int dist = calc_port_distance(requests[i].src_port_idx);
+            int dist = calc_port_distance(requests[i].src);
 
             if (dist < min_dist) {
                 min_dist = dist;
@@ -104,7 +104,7 @@ public:
             }
         }
 
-        upd_head(requests[winner_req_idx].src_port_idx);
+        upd_head(requests[winner_req_idx].src);
         return winner_req_idx;
     }
 };

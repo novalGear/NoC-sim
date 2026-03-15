@@ -6,8 +6,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/router.hpp"
-#include "../src/packet.hpp"
+#include "router.hpp"
+#include "packet.hpp"
 
 /**
  * @class RouterTest
@@ -85,7 +85,7 @@ TEST_F(RouterTest, MultipleInputs_SameOutput) {
 
 TEST_F(RouterTest, Backpressure_PacketNotLost) {
     // Занимаем выход 0
-    router.getOutputPort(0).trySend(Packet{999, 0, 0});
+    ASSERT_TRUE(router.getOutputPort(0).trySend(Packet{999, 0, 0}));
     ASSERT_TRUE(router.getOutputPort(0).hasData());
 
     // Пытаемся отправить пакет на вход 0 (заглушка ведет на выход 0)
@@ -108,7 +108,7 @@ TEST_F(RouterTest, Backpressure_Recovery) {
     // Сценарий: выход занят → освободился → пакет доставлен
 
     // 1. Занимаем выход
-    router.getOutputPort(0).trySend(Packet{999, 0, 0});
+    ASSERT_TRUE(router.getOutputPort(0).trySend(Packet{999, 0, 0}));
     inject(0, Packet{111, 1, 2});
 
     // 2. Такт: пакет застрял на входе
@@ -167,7 +167,7 @@ TEST_F(RouterTest, CollectDoesNotConsume) {
     // Или проверяем через on_clock + backpressure:
 
     // Занимаем выход → пакет не должен уйти с входа
-    router.getOutputPort(0).trySend(Packet{999, 0, 0});
+    ASSERT_TRUE(router.getOutputPort(0).trySend(Packet{999, 0, 0}));
 
     router.on_clock();
 

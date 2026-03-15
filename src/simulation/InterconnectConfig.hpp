@@ -31,6 +31,7 @@ struct SimulationResult {
     int packets_delivered = 0;
     int packets_lost = 0;
     long long cycles_elapsed = 0;  // тактов симуляции
+    long long execution_time_ms = 0;
     std::string errorMessage;
 
     // Конвертация результата в JSON-строку (без библиотек)

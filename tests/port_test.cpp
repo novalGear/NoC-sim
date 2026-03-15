@@ -6,8 +6,8 @@
  */
 
 #include <gtest/gtest.h>
-#include "../src/port.hpp"
-#include "../src/packet.hpp"
+#include "port.hpp"
+#include "packet.hpp"
 
 /**
  * @class PortTest

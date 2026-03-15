@@ -13,7 +13,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # 3. Поиск внешних зависимостей
 # Java
-find_package(JAVA REQUIRED)
+find_package(Java REQUIRED)
 include(UseJava)    # вспомогательные функции для работы с Java
 
 # jni.h

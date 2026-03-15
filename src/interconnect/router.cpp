@@ -47,11 +47,11 @@ void Router::collect_requests(AllRequests& requests) {
             auto pkt_opt = in_port.peek();
             assert(pkt_opt.has_value());  // hasData() гарантирует наличие
 
-            int dst_port = route_pkt(pkt_opt.value());
+            int dst_idx = route_pkt(pkt_opt.value());
             // Валидация: целевой порт должен быть в допустимом диапазоне
-            assert(dst_port >= 0 && dst_port < out_port_count);
+            assert(dst_idx >= 0 && dst_idx < out_port_count);
 
-            requests[dst_port].push_back(in_idx);
+            requests[dst_idx].push_back(Request(in_idx));
         }
     }
 }
@@ -71,7 +71,7 @@ void Router::arbitrate_all(const AllRequests& requests, std::vector<int>& sender
 
         // Если арбитр вернул валидный индекс, сохраняем физический номер входа
         if (winner_req_idx >= 0 && winner_req_idx < static_cast<int>(req_list.size())) {
-            senders_list[out_idx] = req_list[winner_req_idx];
+            senders_list[out_idx] = req_list[winner_req_idx].src;
         }
     }
 }

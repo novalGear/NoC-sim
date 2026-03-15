@@ -2,7 +2,7 @@
 #include <string>
 #include <sstream>
 #include <chrono>
-#include "InterconnectConfig.h"
+#include "InterconnectConfig.hpp"
 
 TopologyType parseTopology(const std::string& str) {
     if (str == "MESH") return TopologyType::MESH;

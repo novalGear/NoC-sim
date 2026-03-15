@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <vector>
+
 /**
  * @struct Packet
  * @brief Представляет пакет данных, передаваемый через интерконнект.
@@ -28,14 +30,16 @@ struct Packet {
  * @details Используется классом RRArbiter для разрешения конфликтов.
  */
 struct Request {
-    int src_port_idx;   ///< Индекс входного порта, отправившего запрос
-
-    Request() : src_port_idx(-1) {}
-    explicit Request(int idx) : src_port_idx(idx) {}
+    int src;    ///< Индекс входного порта, отправившего запрос
+    // dest не хранится, смотри AllRequests
+    // int dst;    ///< Индекс выходного порта, куда направляется пакет
+    Request() : src(-1) {}
+    explicit Request(int src_idx) : src(src_idx)  {}
 };
 
 // Тип для списка запросов на один выходной порт
 using RequestsList = std::vector<Request>;
 
-// Тип для карты всех запросов: индекс выхода -> список запросов на этот выход
+// Тип для карты всех запросов:
+// индекс выхода -> список запросов на этот выход
 using AllRequests = std::vector<RequestsList>;
