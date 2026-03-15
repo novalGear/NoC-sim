@@ -6,9 +6,16 @@
 
 ## TODO:
 
+Interface:
 - парсинг строки параметров и их проверка на стороне C++
 - обработка ошибок в канале interface <-> app
 - single source of truth описания возможных конфигураций интерконнекта.
+
+Interconnect:
+  - виртуальные методы router: route_pkt
+  - виртуальный метод итератора
+  - виртуальные методы в Interconnect: build_topology, run_simulation, etc.
+
 
 ## Литература:
 
