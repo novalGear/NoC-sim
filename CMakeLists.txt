@@ -1,90 +1,82 @@
+# =========================================================
+# Network-on-Crystal Simulation Root
+# =========================================================
+
+# 1. Минимальная версия и имя проекта
 cmake_minimum_required(VERSION 3.10)
-project(NoC_Simulator_JNI CXX)
+project(NoC_Simulatior_JNI CXX)
 
+# 2. Глобальные настройки компилятора
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDART_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# === 1. Поиск Java и JNI ===
+# 3. Поиск внешних зависимостей
+# Java
+find_package(JAVA REQUIRED)
+include(UseJava)    # вспомогательные функции для работы с Java
+
+# jni.h
 find_package(JNI REQUIRED)
-find_package(Java REQUIRED)
 
-include(UseJava)
+# Google Tests
+find_package(GTest REQUIRED)
+include(GoogleTest) # для функции gtest_discover_tests
+
+# nlohmann/json lib for C++
+find_package(nlomann_json QUIET)
 
 message(STATUS "Java found: ${Java_JAVA_EXECUTABLE}")
 message(STATUS "JNI include dirs: ${JNI_INCLUDE_DIRS}")
 
-# === 2. Настройка путей и зависимостей ===
-set(JSON_JAR "${CMAKE_SOURCE_DIR}/lib/java/json-20231013.jar")
-set(OUTPUT_DIR "${CMAKE_SOURCE_DIR}/build_output")
-set(CLASS_DIR "${OUTPUT_DIR}/classes")
-set(LIB_DIR "${OUTPUT_DIR}/lib")
-set(HDR_DIR "${CMAKE_SOURCE_DIR}/src/simulation")
+# 4. Определение путей и переменных проекта
 
-file(MAKE_DIRECTORY ${CLASS_DIR})
-file(MAKE_DIRECTORY ${LIB_DIR})
+set(JSON_JAR "${CMAKE_SOURCE_DIR}/lib/java/json-20231013.jar")
+
+# Папка для всех артефактов сборки (классы, библиотеки)
+set(OUTPUT_DIR "${CMAKE_BINARY_DIR}/output")
+set(CLASS_DIR "${OUTPUT_DIR}/classes")                      # для .class файлов
+set(LIB_DIR "${OUTPUT_DIR}/lib")                            # для libJNIdll.so
+set(HDR_DIR "${CMAKE_SOURCE_DIR}/src/simulation")           # для сгенерированного .h
+
+file(MAKE_DIRECTORY ${CLASS_DIR} ${LIB_DIR})
 
 if(NOT EXISTS ${JSON_JAR})
     message(FATAL_ERROR "JSON JAR not found at ${JSON_JAR}. Please download it.")
 endif()
 
-find_package(nlohmann_json QUIET)
 if(NOT nlohmann_json_FOUND)
-    message(STATUS "nlohmann_json not found via find_package. Assuming system header or manual include.")
+    message(STATUS "nlohmann_json not found via find_package. Assuming system header.")
     include_directories(/usr/include)
 endif()
 
-# === 3. Генерация JNI заголовков и компиляция Java ===
-# Создаем именованную цель "generate_jni_headers"
-add_custom_target(generate_jni_headers ALL
-    COMMAND ${Java_JAVAC_EXECUTABLE}
-        -h ${HDR_DIR}
-        -d ${CLASS_DIR}
-        -sourcepath ${CMAKE_SOURCE_DIR}/src/interface
-        -cp ${JSON_JAR}
-        ${CMAKE_SOURCE_DIR}/src/interface/InterconnectGUI.java
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Generating JNI headers and compiling Java..."
-    VERBATIM
-)
+# 5. Экспорт переменных для подкаталогов
 
-# === 4. Сборка C++ библиотеки ===
-add_library(JNIdll SHARED
-    src/simulation/jni_wrapper.cpp
-)
+set(NOC_SIM_JSON_JAR ${JSON_JAR} CACHE INTERNAL "")
+set(NOC_SIM_CLASS_DIR ${CLASS_DIR} CACHE INTERNAL "")
+set(NOC_SIM_LIB_DIR ${LIB_DIR} CACHE INTERNAL "")
+set(NOC_SIM_HDR_DIR ${HDR_DIR} CACHE INTERNAL "")
+set(NOC_SIM_JNI_INCLUDES ${JNI_INCLUDE_DIRS} CACHE INTERNAL "")
+set(NOC_SIM_JVM_LIBRARY ${JAVA_JVM_LIBRARY} CACHE INTERNAL "")
 
-target_include_directories(JNIdll PRIVATE
-    ${JNI_INCLUDE_DIRS}
-    ${HDR_DIR}             # Путь к сгенерированному .h
-    src/simulation
-)
+# 6. Подключение модулей
 
-target_link_libraries(JNIdll PRIVATE ${JAVA_JVM_LIBRARY})
+add_subdirectory(src)
+add_subdirectory(tests)
 
-set_target_properties(JNIdll PROPERTIES
-    PREFIX "lib"
-    OUTPUT_NAME "JNIdll"
-    LIBRARY_OUTPUT_DIRECTORY ${LIB_DIR}
-)
+# 7. Цель для запуска
 
-# ИСПРАВЛЕНИЕ: Зависим от имени цели, а не от пути к файлу
-add_dependencies(JNIdll generate_jni_headers)
-
-# === 5. Запуск приложения ===
-# ВНИМАНИЕ: Проверьте наличие package в Java файле!
-# Если в InterconnectGUI.java есть строка "package Interface;", то класс называется "Interface.InterconnectGUI"
-# Если строки package нет, то просто "InterconnectGUI"
 set(JAVA_MAIN_CLASS "InterconnectGUI")
-# Раскомментируйте ниже, если у вас есть пакет:
-# set(JAVA_MAIN_CLASS "Interface.InterconnectGUI")
 
 add_custom_target(run
     COMMAND ${CMAKE_COMMAND} -E echo "Starting simulation..."
     COMMAND ${Java_JAVA_EXECUTABLE}
-        -Djava.library.path=${LIB_DIR}
-        -cp "${CLASS_DIR}:${JSON_JAR}"
+        -Djava.library.path=${NOC_SIM_LIB_DIR}              # где искать библиотеки
+        -cp "${NOC_SIM_CLASS_DIR}:${NOC_SIM_JSON_JAR}"      # classpath
         ${JAVA_MAIN_CLASS}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running InterconnectGUI..."
     DEPENDS JNIdll
     VERBATIM
 )
+
