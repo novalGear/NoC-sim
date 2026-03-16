@@ -1,8 +1,8 @@
 /**
  * @file router.hpp
- * @brief Класс маршрутизатора (Router) для симуляции интерконнекта с арбитражем Round-Robin.
+ * @brief Абстрактный базовый класс маршрутизатора для симуляции интерконнекта.
  * @author Novoselov Alexandr
- * @date   14/03/2026
+ * @date   16/03/2026
  */
 
 #pragma once
@@ -14,32 +14,39 @@
 #include <vector>
 #include <optional>
 #include <cassert>
+#include <memory>
 
 /**
  * @class Router
- * @brief Маршрутизатор с арбитражем Round-Robin для управления потоком пакетов.
+ * @brief Абстрактный базовый класс маршрутизатора с арбитражем Round-Robin.
  *
  * @details
- * Router моделирует цикл-точное поведение аппаратного маршрутизатора в сети-on-chip:
+ * Router определяет общий интерфейс и реализует цикл-точное поведение
+ * аппаратного маршрутизатора в сети-on-chip:
  * - Имеет фиксированное количество входных и выходных портов
  * - На каждом такте (on_clock) выполняет трехфазный алгоритм:
  *   1. **Collect**: Сбор заявок от входных портов (без извлечения пакетов)
  *   2. **Arbitrate**: Разрешение конфликтов через RRArbiter (Round-Robin)
  *   3. **Send**: Фактическая передача выигравших пакетов на выходные порты
  *
+ * Наследники (например, MeshRouter, ButterflyRouter) обязаны реализовать:
+ * - Логику маршрутизации пакетов (метод route_pkt())
+ * - Специфичную для топологии инициализацию портов
+ *
  * Механизм backpressure:
  * - Пакет извлекается из входного порта только если выходной порт готов (isReady)
  * - Если выход занят, пакет остается во входном буфере до следующего такта
  *
- * @note Класс не потокобезопасен. Все вызовы должны происходить из одного потока симуляции.
- * @note Метод route_pkt() является заглушкой и должен быть переопределен для конкретной топологии.
+ * @note Класс не поддерживает копирование (delete), но поддерживает перемещение.
+ * @note Все вызовы должны происходить из одного потока симуляции.
  *
- * @see Port, RRArbiter, Packet, Interconnect
+ * @see Port, RRArbiter, Packet, Interconnect, MeshRouter, ButterflyRouter
  */
 class Router {
 private:
     int id;  ///< Уникальный идентификатор маршрутизатора в сети
 
+protected:
     std::vector<Port> input_ports;   ///< Входные порты маршрутизатора
     std::vector<Port> output_ports;  ///< Выходные порты маршрутизатора
 
@@ -49,14 +56,19 @@ private:
     RRArbiter arbiter;   ///< Арбитр для разрешения конфликтов на выходных портах
 
     /**
-     * @brief Простая заглушка маршрутизации: всегда возвращает порт 0.
+     * @brief Чисто виртуальный метод маршрутизации пакета.
      * @param[in] pkt Пакет для маршрутизации.
-     * @return Индекс выходного порта в диапазоне [0, out_port_count).
+     * @return Индекс выходного порта, на который должен быть отправлен пакет.
      *
-     * @note В реальной реализации должен учитывать топологию сети и адрес назначения пакета.
+     * @details
+     * Наследники должны реализовать этот метод в соответствии с топологией сети.
+     * Алгоритм маршрутизации определяет, через какой выходной порт пакет должен
+     * покинуть текущий роутер, чтобы достичь узла назначения pkt.dst.
+     *
+     * @note Гарантируется, что возвращаемый индекс валиден (0 <= idx < out_port_count).
      * @see MeshRouter::route_pkt(), ButterflyRouter::route_pkt()
      */
-    [[nodiscard]] int route_pkt(const Packet& pkt) const;
+    [[nodiscard]] virtual int route_pkt(const Packet& pkt) const = 0;
 
 public:
     /**
@@ -68,7 +80,31 @@ public:
      * @pre input_count > 0 && output_count > 0
      * @post Инициализирует векторы портов и арбитр с заданными размерами.
      */
-    Router(int input_count, int output_count, int router_id = 0);
+    Router(int input_count, int output_count, int router_id = 0)
+        : id(router_id)
+        , input_ports(input_count)
+        , output_ports(output_count)
+        , in_port_count(input_count)
+        , out_port_count(output_count)
+        , arbiter(input_count)  // Арбитр работает с input_count источниками
+    {
+        assert(input_count > 0 && "Input port count must be positive");
+        assert(output_count > 0 && "Output port count must be positive");
+    }
+
+    /**
+     * @brief Виртуальный деструктор.
+     * @details Обеспечивает корректное удаление объектов наследников.
+     */
+    virtual ~Router() = default;
+
+    // Запрет копирования
+    Router(const Router&) = delete;
+    Router& operator=(const Router&) = delete;
+
+    // Разрешение перемещения
+    Router(Router&&) noexcept = default;
+    Router& operator=(Router&&) noexcept = default;
 
     /**
      * @brief Основной метод симуляции: выполняет один такт работы маршрутизатора.
@@ -87,7 +123,14 @@ public:
      *
      * @see collect_requests(), arbitrate_all(), send_all()
      */
-    void on_clock();
+    void on_clock() {
+        AllRequests requests(out_port_count);  // Вектор списков запросов для каждого выхода
+        std::vector<int> senders_list(out_port_count, -1);  // -1 означает "нет победителя"
+
+        collect_requests(requests);
+        arbitrate_all(requests, senders_list);
+        send_all(senders_list);
+    }
 
     /**
      * @brief Фаза 1: Сбор заявок от входных портов.
@@ -98,13 +141,32 @@ public:
      * - Если порт содержит пакет (hasData), определяется целевой выходной порт через route_pkt()
      * - Индекс входного порта добавляется в список запросов для целевого выхода
      *
-     * @pre requests должен быть пустым или будет перезапписан.
+     * @pre requests.size() == out_port_count
      * @post requests[out_idx] содержит индексы входов, желающих отправить на out_idx.
      * @note Пакеты НЕ извлекаются из портов (используется peek для безопасности).
      *
      * @see peek(), route_pkt(), RequestsList
      */
-    void collect_requests(AllRequests& requests);
+    void collect_requests(AllRequests& requests) {
+        // Очищаем списки запросов
+        for (auto& req_list : requests) {
+            req_list.clear();
+        }
+
+        // Сканируем все входные порты
+        for (int in_idx = 0; in_idx < in_port_count; ++in_idx) {
+            auto pkt_opt = input_ports[in_idx].peek();
+            if (pkt_opt.has_value()) {
+                // Определяем целевой выход для пакета
+                int out_idx = route_pkt(pkt_opt.value());
+                assert(out_idx >= 0 && out_idx < out_port_count &&
+                       "Route function returned invalid port index");
+
+                // Добавляем запрос от этого входного порта
+                requests[out_idx].emplace_back(in_idx);
+            }
+        }
+    }
 
     /**
      * @brief Фаза 2: Арбитраж конфликтов на выходных портах.
@@ -115,14 +177,30 @@ public:
      * Для каждого выходного порта:
      * - Если есть запросы, вызывается arbiter.arbitrate() для выбора победителя
      * - Индекс победившего входного порта сохраняется в senders_list
-     * - Если запросов нет, senders_list[out_idx] остается неопределенным (не используется)
+     * - Если запросов нет, senders_list[out_idx] остается -1
      *
      * @pre requests.size() == out_port_count
+     * @pre senders_list.size() == out_port_count
      * @post senders_list содержит индексы победителей для каждого выхода.
      *
      * @see RRArbiter::arbitrate(), RequestsList
      */
-    void arbitrate_all(const AllRequests& requests, std::vector<int>& senders_list);
+    void arbitrate_all(const AllRequests& requests, std::vector<int>& senders_list) {
+        assert(requests.size() == static_cast<size_t>(out_port_count));
+        assert(senders_list.size() == static_cast<size_t>(out_port_count));
+
+        for (int out_idx = 0; out_idx < out_port_count; ++out_idx) {
+            if (!requests[out_idx].empty()) {
+                // Арбитр возвращает индекс в векторе requests[out_idx]
+                int winner_req_idx = arbiter.arbitrate(requests[out_idx], out_idx);
+                assert(winner_req_idx >= 0 && winner_req_idx < static_cast<int>(requests[out_idx].size()));
+
+                // Сохраняем физический индекс входного порта-победителя
+                senders_list[out_idx] = requests[out_idx][winner_req_idx].src;
+            }
+            // else: senders_list[out_idx] уже -1 (инициализировано в on_clock)
+        }
+    }
 
     /**
      * @brief Фаза 3: Фактическая отправка пакетов победителям.
@@ -130,7 +208,7 @@ public:
      *
      * @details
      * Для каждого выходного порта:
-     * - Если выход готов (isReady) и есть победитель:
+     * - Если выход готов (isReady) и есть победитель (senders_list[out_idx] != -1):
      *   1. Извлекает пакет из входного порта победителя (tryRecv)
      *   2. Отправляет пакет в выходной порт (trySend)
      * - Если выход занят: пакет остается во входном буфере (backpressure)
@@ -141,9 +219,28 @@ public:
      * @note Реализует механизм backpressure: потеря пакетов невозможна.
      * @see Port::tryRecv(), Port::trySend(), Port::isReady()
      */
-    void send_all(const std::vector<int>& senders_list);
+    void send_all(const std::vector<int>& senders_list) {
+        assert(senders_list.size() == static_cast<size_t>(out_port_count));
 
-    // Геттеры для отладки и тестирования
+        for (int out_idx = 0; out_idx < out_port_count; ++out_idx) {
+            int in_idx = senders_list[out_idx];
+
+            // Если есть победитель и выходной порт готов принять пакет
+            if (in_idx != -1 && output_ports[out_idx].isReady()) {
+                // Пытаемся извлечь пакет из входного порта победителя
+                auto pkt_opt = input_ports[in_idx].tryRecv();
+                assert(pkt_opt.has_value() && "Winner should have a packet");
+
+                // Отправляем пакет в выходной порт
+                bool sent = output_ports[out_idx].trySend(pkt_opt.value());
+                assert(sent && "Output port should be ready (checked with isReady)");
+            }
+            // Если выход занят, пакет остается во входном порту (backpressure)
+        }
+    }
+
+    // === Геттеры ===
+
     [[nodiscard]] int getId() const { return id; }
     [[nodiscard]] int getInputCount() const { return in_port_count; }
     [[nodiscard]] int getOutputCount() const { return out_port_count; }
@@ -166,6 +263,26 @@ public:
      * @pre 0 <= idx < out_port_count
      */
     Port& getOutputPort(int idx) {
+        assert(idx >= 0 && idx < out_port_count);
+        return output_ports[idx];
+    }
+
+    /**
+     * @brief Получить const доступ к входному порту.
+     * @param[in] idx Индекс порта
+     * @return Константная ссылка на порт
+     */
+    const Port& getInputPort(int idx) const {
+        assert(idx >= 0 && idx < in_port_count);
+        return input_ports[idx];
+    }
+
+    /**
+     * @brief Получить const доступ к выходному порту.
+     * @param[in] idx Индекс порта
+     * @return Константная ссылка на порт
+     */
+    const Port& getOutputPort(int idx) const {
         assert(idx >= 0 && idx < out_port_count);
         return output_ports[idx];
     }

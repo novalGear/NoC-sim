@@ -1,38 +1,115 @@
+/**
+ * @file mesh_router.hpp
+ * @brief Специализированный маршрутизатор для Mesh топологии.
+ * @author Novoselov Alexander
+ * @date 16/03/2026
+ */
+
 #pragma once
+
+#include <bitset>
+
+#include "router.hpp"
 #include "mesh_utils.hpp"
-#include "../core/router.hpp" // Базовый класс Router
-#include <cmath>
+#include <unordered_map>
 
-class MeshRouter : public Router {
-private:
-    int x_coord;
-    int y_coord;
-    int grid_width;
-
+/**
+ * @class MeshRouter
+ * @brief Маршрутизатор для двумерной Mesh топологии с X-Y маршрутизацией.
+ *
+ * @details
+ * MeshRouter расширяет базовый класс Router, добавляя:
+ * - Хранение координат в сетке
+ * - X-Y (dimension-order) маршрутизацию
+ * - Регистрацию портов по направлениям MeshDirection
+ *
+ * Количество и типы портов зависят от позиции роутера в сетке
+ * и определяются внешним кодом (MeshInterconnect) при построении топологии.
+ */
+class MeshRouter final : public Router {
 public:
-    MeshRouter(int id, int x, int y, int w)
-        : Router(MESH_IN_PORT_COUNT, MESH_OUT_PORT_COUNT, id),
-          x_coord(x),
-          y_coord(y),
-          grid_width(w)
-    {}
+    /**
+     * @brief Конструктор MeshRouter.
+     * @param[in] id Уникальный идентификатор роутера
+     * @param[in] x Координата X в сетке
+     * @param[in] y Координата Y в сетке
+     * @param[in] width Ширина всей mesh сетки
+     * @param[in] height Высота всей mesh сетки
+     *
+     * @note Порты не создаются в конструкторе - они будут добавлены позже
+     *       через registerInputPort/registerOutputPort.
+     */
+    MeshRouter(int id, int x, int y, int width, int height);
 
-    int route_pkt(const Packet& pkt) override {
-        MeshCoords dst_coords = id2coords(pkt.dst, grid_width);
+    /**
+     * @brief Получить координаты роутера.
+     * @see MeshCoords
+     */
+    [[nodiscard]] MeshCoords get_coords() const { return coords; }
 
-        // Сначала двигаемся по X
-        if (dst_coords.x > x_coord) return MeshDirection::EAST;
-        if (dst_coords.x < x_coord) return MeshDirection::WEST;
-
-        // Затем по Y
-        if (dst_coords.y > y_coord) return MeshDirection::SOUTH;
-        if (dst_coords.y < y_coord) return MeshDirection::NORTH;
-
-        // Достигли назначения
-        return MeshDirection::LOCAL_OUT;
+    /**
+     * @brief Проверить наличие входного порта в заданном направлении.
+     * @param[in] dir Направление
+     * @return true если порт существует
+     */
+    [[nodiscard]] inline bool has_in_port(MeshDirection dir) const {
+        return in_ports_mask.test(static_cast<size_t>(dir));
     }
 
-    // Геттеры координат (могут понадобиться при сборке сети)
-    int getX() const { return x_coord; }
-    int getY() const { return y_coord; }
+    /**
+     * @brief Проверить наличие выходного порта в заданном направлении.
+     * @param[in] dir Направление
+     * @return true если порт существует
+     */
+    [[nodiscard]] inline bool has_out_port(MeshDirection dir) const {
+        return out_ports_mask.test(static_cast<size_t>(dir));
+    }
+
+private:
+    MeshCoords coords;           ///< Координаты в сетке
+    int grid_width;              ///< Ширина всей сетки
+    int grid_height;             ///< Высота всей сетки
+
+    MeshPortMask in_ports_mask;    ///< Маска существования входных портов
+    MeshPortMask out_ports_mask;   ///< Маска существования выходных портов
+
+    // Дружественный класс для доступа к регистрации портов
+    friend class MeshInterconnect;
+
+    /**
+     * @brief Реализация X-Y маршрутизации.
+     * @param[in] pkt Пакет для маршрутизации
+     * @return Индекс выходного порта
+     *
+     * @details
+     * Алгоритм:
+     * 1. Если пакет достиг цели (dst совпадает с координатами) -> LOCAL
+     * 2. Иначе если x_dst != x_current -> двигаемся по X (EAST/WEST)
+     * 3. Иначе двигаемся по Y (SOUTH/NORTH)
+     *
+     * @throws std::runtime_error если порт для выбранного направления не существует
+     */
+    [[nodiscard]] int route_pkt(const Packet& pkt) const override;
+
+    /**
+     * @brief Зарегистрировать входной порт (вызывается только MeshInterconnect).
+     * @param[in] dir Направление порта
+     * @param[in] port - указатель на существующий порт (принадлежит Interconnect)
+     *
+     * @pre Порт с таким направлением еще не зарегистрирован
+     * @pre port* != nullptr
+     * @post port* зарегистрирован в input_ports и привязан к dir
+     */
+    void register_in_port(MeshDirection dir, Port* port);
+
+    /**
+     * @brief Зарегистрировать выходной порт (вызывается только MeshInterconnect).
+     * @param[in] dir Направление порта
+     * @param[in] port - указатель на существующий порт (принадлежит Interconnect)
+     *
+     * @pre Порт с таким направлением еще не зарегистрирован
+     * @pre port* != nullptr
+     * @post port* зарегистрирован в output_ports и привязан к dir
+     */
+    void register_out_port(MeshDirection dir, Port* port);
 };
