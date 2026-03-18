@@ -62,7 +62,7 @@ public:
      * @brief Забирает пакет из порта (потребляет данные).
      * @return std::optional<Packet> с пакетом если данные были, или nullopt если порт пуст.
      */
-    std::optional<Packet> tryRecv() {
+    [[nodiscard]] std::optional<Packet> tryRecv() {
         if (hasData()) {
             Packet pkt = buffer.value();
             clr_buffer();

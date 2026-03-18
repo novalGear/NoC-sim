@@ -27,6 +27,20 @@ int MeshRouter::route_pkt(const Packet& pkt) const {
     return static_cast<int>(dst_dir);
 }
 
+Port* MeshRouter::get_in_port(MeshDirection dir) {
+    assert(has_in_port(dir) && "No such port registered");
+    size_t port_idx = static_cast<size_t>(dir);
+    assert(port_idx < input_ports.size() && "Index out of boundaries");
+    return input_ports[port_idx];
+}
+
+Port* MeshRouter::get_out_port(MeshDirection dir) {
+    assert(has_out_port(dir) && "No such port registered");
+    size_t port_idx = static_cast<size_t>(dir);
+    assert(port_idx < output_ports.size() && "Index out of boundaries");
+    return output_ports[port_idx];
+}
+
 void MeshRouter::register_in_port(MeshDirection dir, Port* port) {
     assert(!has_in_port(dir) && "In port override");
     assert(port);
@@ -47,4 +61,14 @@ void MeshRouter::register_out_port(MeshDirection dir, Port* port) {
 
     output_ports[idx] = port;
     out_ports_mask.set(idx);
+}
+
+bool MeshRouter::inject_packet(const Packet& pkt) {
+    Port* local_in_port = get_in_port(MeshDirection::LOCAL);
+    return local_in_port->try_send(pkt);
+}
+
+std::optional<Packet> MeshRouter::eject_packet() {
+    Port* local_out_port = get_out_port(MeshDirection::LOCAL);
+    return local_out_port->try_recv();
 }

@@ -47,8 +47,8 @@ private:
     int id;  ///< Уникальный идентификатор маршрутизатора в сети
 
 protected:
-    std::vector<Port> input_ports;   ///< Входные порты маршрутизатора
-    std::vector<Port> output_ports;  ///< Выходные порты маршрутизатора
+    std::vector<Port*> input_ports;   ///< Входные порты маршрутизатора
+    std::vector<Port*> output_ports;  ///< Выходные порты маршрутизатора
 
     int in_port_count;   ///< Количество входных портов (кэшировано для производительности)
     int out_port_count;  ///< Количество выходных портов (кэшировано для производительности)
@@ -155,7 +155,7 @@ public:
 
         // Сканируем все входные порты
         for (int in_idx = 0; in_idx < in_port_count; ++in_idx) {
-            auto pkt_opt = input_ports[in_idx].peek();
+            auto pkt_opt = input_ports[in_idx]->peek();
             if (pkt_opt.has_value()) {
                 // Определяем целевой выход для пакета
                 int out_idx = route_pkt(pkt_opt.value());
@@ -226,13 +226,13 @@ public:
             int in_idx = senders_list[out_idx];
 
             // Если есть победитель и выходной порт готов принять пакет
-            if (in_idx != -1 && output_ports[out_idx].isReady()) {
+            if (in_idx != -1 && output_ports[out_idx]->isReady()) {
                 // Пытаемся извлечь пакет из входного порта победителя
-                auto pkt_opt = input_ports[in_idx].tryRecv();
+                auto pkt_opt = input_ports[in_idx]->tryRecv();
                 assert(pkt_opt.has_value() && "Winner should have a packet");
 
                 // Отправляем пакет в выходной порт
-                bool sent = output_ports[out_idx].trySend(pkt_opt.value());
+                bool sent = output_ports[out_idx]->trySend(pkt_opt.value());
                 assert(sent && "Output port should be ready (checked with isReady)");
             }
             // Если выход занят, пакет остается во входном порту (backpressure)
@@ -244,46 +244,4 @@ public:
     [[nodiscard]] int getId() const { return id; }
     [[nodiscard]] int getInputCount() const { return in_port_count; }
     [[nodiscard]] int getOutputCount() const { return out_port_count; }
-
-    /**
-     * @brief Получить доступ к входному порту (для тестов/инжекции пакетов).
-     * @param[in] idx Индекс порта [0, in_port_count).
-     * @return Ссылка на порт.
-     * @pre 0 <= idx < in_port_count
-     */
-    Port& getInputPort(int idx) {
-        assert(idx >= 0 && idx < in_port_count);
-        return input_ports[idx];
-    }
-
-    /**
-     * @brief Получить доступ к выходному порту (для тестов/сбора статистики).
-     * @param[in] idx Индекс порта [0, out_port_count).
-     * @return Ссылка на порт.
-     * @pre 0 <= idx < out_port_count
-     */
-    Port& getOutputPort(int idx) {
-        assert(idx >= 0 && idx < out_port_count);
-        return output_ports[idx];
-    }
-
-    /**
-     * @brief Получить const доступ к входному порту.
-     * @param[in] idx Индекс порта
-     * @return Константная ссылка на порт
-     */
-    const Port& getInputPort(int idx) const {
-        assert(idx >= 0 && idx < in_port_count);
-        return input_ports[idx];
-    }
-
-    /**
-     * @brief Получить const доступ к выходному порту.
-     * @param[in] idx Индекс порта
-     * @return Константная ссылка на порт
-     */
-    const Port& getOutputPort(int idx) const {
-        assert(idx >= 0 && idx < out_port_count);
-        return output_ports[idx];
-    }
 };

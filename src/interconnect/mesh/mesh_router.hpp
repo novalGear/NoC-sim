@@ -33,7 +33,7 @@ public:
      * @param[in] id Уникальный идентификатор роутера
      * @param[in] x Координата X в сетке
      * @param[in] y Координата Y в сетке
-     * @param[in] width Ширина всей mesh сетки
+     * @param[in] width  Ширина всей mesh сетки
      * @param[in] height Высота всей mesh сетки
      *
      * @note Порты не создаются в конструкторе - они будут добавлены позже
@@ -64,6 +64,20 @@ public:
     [[nodiscard]] inline bool has_out_port(MeshDirection dir) const {
         return out_ports_mask.test(static_cast<size_t>(dir));
     }
+
+    /**
+     * @brief Отправить пакет в сеть.
+     * @param[in] pkt Пакет для отправки
+     * @return true если пакет принят в локальный порт
+     */
+    bool inject_packet(const& Packet pkt);
+
+    /**
+     * @brief Извлечь пакет из сети.
+     * @param[out] out_pkt Ссылка для сохранения пакета
+     * @return true если пакет извлечен
+     */
+    bool eject_packet(const& Packet out_pkt);
 
 private:
     MeshCoords coords;           ///< Координаты в сетке
@@ -112,4 +126,16 @@ private:
      * @post port* зарегистрирован в output_ports и привязан к dir
      */
     void register_out_port(MeshDirection dir, Port* port);
+
+    /**
+     * @brief Получить доступ к входному порту по направлению
+     * @param[in] dir Направление порта
+     */
+    Port* get_in_port(MeshDirection dir);
+
+    /**
+     * @brief Получить доступ к выходному порту по направлению
+     * @param[in] dir Направление порта
+     */
+    Port* get_out_port(MeshDirection dir);
 };

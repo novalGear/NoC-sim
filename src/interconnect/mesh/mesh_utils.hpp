@@ -49,6 +49,18 @@ enum class MeshDirection {
  */
 constexpr int MESH_PORTS_PER_ROUTER = static_cast<int>(MeshDirection::COUNT);
 
+MeshDirection opposite(MeshDirection dir) {
+    switch(dir) {
+        case MeshDirection::NORTH:  return MeshDirection::SOUTH;
+        case MeshDirection::SOUTH:  return MeshDirection::NORTH;
+        case MeshDirection::WEST:   return MeshDirection::EAST;
+        case MeshDirection::EAST:   return MeshDirection::WEST;
+        case MeshDirection::LOCAL:  return MeshDirection::LOCAL;
+
+        default: assert(0);
+    }
+}
+
 /**
  * @brief маска существования порта
  * @details mask[k] - существует (1) или нет (0) k-ый порт,
@@ -83,7 +95,7 @@ struct MeshCoords {
      * @param height Высота сетки (количество строк)
      * @return true если координаты валидны
      */
-    bool isValid(int width, int height) const {
+    bool is_valid(int width, int height) const {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 };
@@ -118,8 +130,11 @@ static inline MeshCoords id2coords(int nodeId, int width) {
  * @pre x >= 0, y >= 0, width > 0
  */
 static inline int coords2id(int x, int y, int width) {
-    assert(x >= 0 && y >= 0 && "Coordinates must be non-negative");
     assert(width > 0 && "Width must be positive");
+    assert(height > 0 && "Height must be positive");
+    assert(x >= 0 && x < width  && "x must be in range [0, width]");
+    assert(y >= 0 && y < height && "y must be in range [0, height]");
+
     return y * width + x;
 }
 
@@ -146,14 +161,14 @@ static inline int coords2id(const MeshCoords& coords, int width) {
  * Для LOCAL направления всегда возвращает true, так как локальный порт
  * считается существующим у всех роутеров.
  */
-static inline bool hasNeighbor(int nodeId, int width, int height, MeshDirection dir) {
+static inline bool has_neighbor(int nodeId, int width, int height, MeshDirection dir) {
     if (dir == MeshDirection::LOCAL) return true;  // LOCAL всегда есть
 
     auto [x, y] = id2coords(nodeId, width);
 
     switch (dir) {
-        case MeshDirection::NORTH: return y > 0;
-        case MeshDirection::SOUTH: return y < height - 1;
+        case MeshDirection::NORTH: return y < height - 1;
+        case MeshDirection::SOUTH: return y > 0;
         case MeshDirection::EAST:  return x < width - 1;
         case MeshDirection::WEST:  return x > 0;
         default: return false;
@@ -174,7 +189,7 @@ static inline bool hasNeighbor(int nodeId, int width, int height, MeshDirection 
  *
  * @see hasNeighbor()
  */
-static inline int getNeighborId(int nodeId, int width, int height, MeshDirection dir) {
+static inline int get_neighbor_id(int nodeId, int width, int height, MeshDirection dir) {
     if (!hasNeighbor(nodeId, width, height, dir)) {
         return -1;
     }
