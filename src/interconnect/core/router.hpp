@@ -155,6 +155,10 @@ public:
 
         // Сканируем все входные порты
         for (int in_idx = 0; in_idx < in_port_count; ++in_idx) {
+            if (input_ports[in_idx] == nullptr) {
+                continue;  // Пропускаем незарегистрированные порты
+            }
+
             auto pkt_opt = input_ports[in_idx]->peek();
             if (pkt_opt.has_value()) {
                 // Определяем целевой выход для пакета
@@ -223,10 +227,14 @@ public:
         assert(senders_list.size() == static_cast<size_t>(out_port_count));
 
         for (int out_idx = 0; out_idx < out_port_count; ++out_idx) {
+            if (output_ports[out_idx] == nullptr) {
+                continue;
+            }
             int in_idx = senders_list[out_idx];
 
             // Если есть победитель и выходной порт готов принять пакет
             if (in_idx != -1 && output_ports[out_idx]->is_ready()) {
+                assert(input_ports[in_idx] != nullptr);
                 // Пытаемся извлечь пакет из входного порта победителя
                 auto pkt_opt = input_ports[in_idx]->try_recv();
                 assert(pkt_opt.has_value() && "Winner should have a packet");
