@@ -16,6 +16,7 @@
 #pragma once
 
 #include <cassert>
+#include <bitset>
 
 //=============================================================================
 // Enum направлений соединений
@@ -49,7 +50,7 @@ enum class MeshDirection {
  */
 constexpr int MESH_PORTS_PER_ROUTER = static_cast<int>(MeshDirection::COUNT);
 
-MeshDirection opposite(MeshDirection dir) {
+static MeshDirection opposite(MeshDirection dir) {
     switch(dir) {
         case MeshDirection::NORTH:  return MeshDirection::SOUTH;
         case MeshDirection::SOUTH:  return MeshDirection::NORTH;
@@ -129,7 +130,7 @@ static inline MeshCoords id2coords(int nodeId, int width) {
  *
  * @pre x >= 0, y >= 0, width > 0
  */
-static inline int coords2id(int x, int y, int width) {
+static inline int coords2id(int x, int y, int width, int height) {
     assert(width > 0 && "Width must be positive");
     assert(height > 0 && "Height must be positive");
     assert(x >= 0 && x < width  && "x must be in range [0, width]");
@@ -145,8 +146,8 @@ static inline int coords2id(int x, int y, int width) {
  * @return Линейный идентификатор узла
  * @overload
  */
-static inline int coords2id(const MeshCoords& coords, int width) {
-    return coords2id(coords.x, coords.y, width);
+static inline int coords2id(const MeshCoords& coords, int width, int height) {
+    return coords2id(coords.x, coords.y, width, height);
 }
 
 /**
@@ -175,6 +176,10 @@ static inline bool has_neighbor(int nodeId, int width, int height, MeshDirection
     }
 }
 
+static inline bool has_neighbor(MeshCoords& coords, int width, int height, MeshDirection dir) {
+    return has_neighbor(coords2id(coords, width, height), width, height, dir);
+}
+
 /**
  * @brief Получает ID соседнего узла в заданном направлении.
  * @param nodeId ID исходного узла
@@ -187,10 +192,10 @@ static inline bool has_neighbor(int nodeId, int width, int height, MeshDirection
  * Для LOCAL направления возвращает ID самого узла (локальный "сосед").
  * Если соседа нет (узел на границе), возвращает -1.
  *
- * @see hasNeighbor()
+ * @see has_neighbor()
  */
 static inline int get_neighbor_id(int nodeId, int width, int height, MeshDirection dir) {
-    if (!hasNeighbor(nodeId, width, height, dir)) {
+    if (!has_neighbor(nodeId, width, height, dir)) {
         return -1;
     }
     if (dir == MeshDirection::LOCAL) return nodeId;  // LOCAL "сосед" - это сам узел
@@ -198,30 +203,14 @@ static inline int get_neighbor_id(int nodeId, int width, int height, MeshDirecti
     auto [x, y] = id2coords(nodeId, width);
 
     switch (dir) {
-        case MeshDirection::NORTH: return coords2id(x, y - 1, width);
-        case MeshDirection::SOUTH: return coords2id(x, y + 1, width);
-        case MeshDirection::EAST:  return coords2id(x + 1, y, width);
-        case MeshDirection::WEST:  return coords2id(x - 1, y, width);
+        case MeshDirection::NORTH: return coords2id(x, y + 1, width, height);
+        case MeshDirection::SOUTH: return coords2id(x, y - 1, width, height);
+        case MeshDirection::EAST:  return coords2id(x + 1, y, width, height);
+        case MeshDirection::WEST:  return coords2id(x - 1, y, width, height);
         default: return -1;
     }
 }
 
-/**
- * @brief Получает противоположное направление.
- * @param dir Исходное направление
- * @return Противоположное направление
- *
- * @details
- * NORTH <-> SOUTH
- * EAST  <-> WEST
- * LOCAL остается LOCAL (нет противоположного)
- */
-static inline MeshDirection oppositeDirection(MeshDirection dir) {
-    switch (dir) {
-        case MeshDirection::NORTH: return MeshDirection::SOUTH;
-        case MeshDirection::SOUTH: return MeshDirection::NORTH;
-        case MeshDirection::EAST:  return MeshDirection::WEST;
-        case MeshDirection::WEST:  return MeshDirection::EAST;
-        default: return MeshDirection::LOCAL;
-    }
+static inline int get_neighbor_id(MeshCoords& coords, int width, int height, MeshDirection dir) {
+    return get_neighbor_id(coords2id(coords, width, height), width, height, dir);
 }

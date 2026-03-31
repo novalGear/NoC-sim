@@ -64,11 +64,15 @@ void MeshRouter::register_out_port(MeshDirection dir, Port* port) {
 }
 
 bool MeshRouter::inject_packet(const Packet& pkt) {
+    assert(has_in_port(MeshDirection::LOCAL));
     Port* local_in_port = get_in_port(MeshDirection::LOCAL);
+    assert(local_in_port);
     return local_in_port->try_send(pkt);
 }
 
 std::optional<Packet> MeshRouter::eject_packet() {
+    assert(has_out_port(MeshDirection::LOCAL));
     Port* local_out_port = get_out_port(MeshDirection::LOCAL);
+    assert(local_out_port);
     return local_out_port->try_recv();
 }

@@ -226,13 +226,13 @@ public:
             int in_idx = senders_list[out_idx];
 
             // Если есть победитель и выходной порт готов принять пакет
-            if (in_idx != -1 && output_ports[out_idx]->isReady()) {
+            if (in_idx != -1 && output_ports[out_idx]->is_ready()) {
                 // Пытаемся извлечь пакет из входного порта победителя
-                auto pkt_opt = input_ports[in_idx]->tryRecv();
+                auto pkt_opt = input_ports[in_idx]->try_recv();
                 assert(pkt_opt.has_value() && "Winner should have a packet");
 
                 // Отправляем пакет в выходной порт
-                bool sent = output_ports[out_idx]->trySend(pkt_opt.value());
+                bool sent = output_ports[out_idx]->try_send(pkt_opt.value());
                 assert(sent && "Output port should be ready (checked with isReady)");
             }
             // Если выход занят, пакет остается во входном порту (backpressure)
@@ -241,7 +241,7 @@ public:
 
     // === Геттеры ===
 
-    [[nodiscard]] int getId() const { return id; }
-    [[nodiscard]] int getInputCount() const { return in_port_count; }
-    [[nodiscard]] int getOutputCount() const { return out_port_count; }
+    [[nodiscard]] int get_id()           const { return id; }
+    [[nodiscard]] int get_input_count()  const { return in_port_count; }
+    [[nodiscard]] int get_output_count() const { return out_port_count; }
 };

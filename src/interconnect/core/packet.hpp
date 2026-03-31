@@ -17,7 +17,7 @@ struct Packet {
     int id;             ///< Уникальный идентификатор пакета
     int src;            ///< ID узла-источника
     int dst;            ///< ID узла-назначения
-    int current_hop;    ///< Счетчик хопов (для статистики латентности)
+    int current_hop;    ///< Счетчик хопов (для статистики задержек)
 
     Packet() : id(0), src(0), dst(0), current_hop(0) {}
     Packet(int _id, int _src, int _dst)

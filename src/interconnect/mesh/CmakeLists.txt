@@ -1,0 +1,28 @@
+# src/interconnect/mesh/CMakeLists.txt
+
+#=============================================================================
+# Mesh topology library
+#=============================================================================
+
+# Указываем, что это библиотека с именем mesh_lib
+add_library(mesh_lib STATIC
+    mesh.cpp
+    mesh_router.cpp
+)
+
+# Указываем include директории для этой библиотеки
+target_include_directories(mesh_lib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}  # Для #include "mesh.hpp" и т.д.
+    ${CMAKE_CURRENT_SOURCE_DIR}/..  # Для #include "../core/router.hpp" и т.д.
+)
+
+# Указываем зависимости
+target_link_libraries(mesh_lib PUBLIC
+    interconnect_core  # Зависимость от core библиотеки
+)
+
+# Устанавливаем свойства компиляции
+target_compile_features(mesh_lib PUBLIC cxx_std_17)
+
+# Если нужно, можно добавить опции компиляции
+# target_compile_options(mesh_lib PRIVATE -Wall -Wextra)

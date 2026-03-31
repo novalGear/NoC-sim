@@ -33,7 +33,7 @@ public:
      * @brief Проверяет наличие данных в порту (сигнал valid).
      * @return true если буфер содержит пакет, false если пуст.
      */
-    [[nodiscard]] bool hasData() const {
+    [[nodiscard]] bool has_data() const {
         return buffer.has_value();
     }
 
@@ -41,7 +41,7 @@ public:
      * @brief Проверяет готовность порта к приему нового пакета (сигнал ready).
      * @return true если буфер пуст и порт готов принять данные.
      */
-    [[nodiscard]] bool isReady() const {
+    [[nodiscard]] bool is_ready() const {
         return !buffer.has_value();
     }
 
@@ -50,8 +50,8 @@ public:
      * @param[in] pkt Ссылка на пакет для отправки (копируется в буфер).
      * @return true если отправка успешна, false если порт занят (backpressure).
      */
-    [[nodiscard]] bool trySend(const Packet& pkt) {
-        if (isReady()) {
+    [[nodiscard]] bool try_send(const Packet& pkt) {
+        if (is_ready()) {
             buffer = pkt;
             return true;
         }
@@ -62,8 +62,8 @@ public:
      * @brief Забирает пакет из порта (потребляет данные).
      * @return std::optional<Packet> с пакетом если данные были, или nullopt если порт пуст.
      */
-    [[nodiscard]] std::optional<Packet> tryRecv() {
-        if (hasData()) {
+    [[nodiscard]] std::optional<Packet> try_recv() {
+        if (has_data()) {
             Packet pkt = buffer.value();
             clr_buffer();
             return pkt;

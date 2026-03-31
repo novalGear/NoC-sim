@@ -13,35 +13,35 @@
 TEST(PortTest, InitialState) {
     Port port;
 
-    EXPECT_FALSE(port.hasData());
-    EXPECT_TRUE(port.isReady());
+    EXPECT_FALSE(port.has_data());
+    EXPECT_TRUE(port.is_ready());
     EXPECT_FALSE(port.peek().has_value());
-    EXPECT_FALSE(port.tryRecv().has_value());
+    EXPECT_FALSE(port.try_recv().has_value());
 }
 
-// Тест: trySend на пустой порт
+// Тест: try_send на пустой порт
 TEST(PortTest, TrySendOnEmptyPort) {
     Port port;
     Packet test_pkt(1, 2, 3);  // id=1, src=2, dst=3
 
-    bool sent = port.trySend(test_pkt);
+    bool sent = port.try_send(test_pkt);
 
     EXPECT_TRUE(sent);
-    EXPECT_TRUE(port.hasData());
-    EXPECT_FALSE(port.isReady());
+    EXPECT_TRUE(port.has_data());
+    EXPECT_FALSE(port.is_ready());
 }
 
-// Тест: trySend на занятый порт (backpressure)
+// Тест: try_send на занятый порт (backpressure)
 TEST(PortTest, TrySendOnOccupiedPort) {
     Port port;
     Packet pkt1(1, 2, 3);
     Packet pkt2(4, 5, 6);
 
     // Первая отправка успешна
-    ASSERT_TRUE(port.trySend(pkt1));
+    ASSERT_TRUE(port.try_send(pkt1));
 
     // Вторая должна провалиться
-    bool sent = port.trySend(pkt2);
+    bool sent = port.try_send(pkt2);
     EXPECT_FALSE(sent);
 
     // Оригинальный пакет должен остаться
@@ -50,22 +50,22 @@ TEST(PortTest, TrySendOnOccupiedPort) {
     EXPECT_EQ(peeked->id, 1);
 }
 
-// Тест: tryRecv на пустом порту
+// Тест: try_recv на пустом порту
 TEST(PortTest, TryRecvOnEmptyPort) {
     Port port;
 
-    auto result = port.tryRecv();
+    auto result = port.try_recv();
     EXPECT_FALSE(result.has_value());
 }
 
-// Тест: tryRecv после отправки
+// Тест: try_recv после отправки
 TEST(PortTest, TryRecvAfterSend) {
     Port port;
     Packet test_pkt(1, 2, 3);
 
-    port.trySend(test_pkt);
+    port.try_send(test_pkt);
 
-    auto result = port.tryRecv();
+    auto result = port.try_recv();
     ASSERT_TRUE(result.has_value());
 
     // Проверяем целостность пакета
@@ -75,29 +75,29 @@ TEST(PortTest, TryRecvAfterSend) {
     EXPECT_EQ(received.dst, 3);
 }
 
-// Тест: tryRecv очищает порт
+// Тест: try_recv очищает порт
 TEST(PortTest, TryRecvClearsPort) {
     Port port;
     Packet test_pkt(1, 2, 3);
 
-    port.trySend(test_pkt);
-    port.tryRecv();
+    port.try_send(test_pkt);
+    port.try_recv();
 
-    EXPECT_FALSE(port.hasData());
-    EXPECT_TRUE(port.isReady());
+    EXPECT_FALSE(port.has_data());
+    EXPECT_TRUE(port.is_ready());
 }
 
-// Тест: двойной tryRecv
+// Тест: двойной try_recv
 TEST(PortTest, DoubleTryRecv) {
     Port port;
     Packet test_pkt(1, 2, 3);
 
-    port.trySend(test_pkt);
+    port.try_send(test_pkt);
 
-    auto first = port.tryRecv();
+    auto first = port.try_recv();
     EXPECT_TRUE(first.has_value());
 
-    auto second = port.tryRecv();
+    auto second = port.try_recv();
     EXPECT_FALSE(second.has_value());
 }
 
@@ -114,21 +114,21 @@ TEST(PortTest, PeekReturnsWithoutRemoving) {
     Port port;
     Packet test_pkt(1, 2, 3);
 
-    port.trySend(test_pkt);
+    port.try_send(test_pkt);
 
     auto peek1 = port.peek();
     ASSERT_TRUE(peek1.has_value());
     EXPECT_EQ(peek1->id, 1);
 
     // Порт все еще содержит данные
-    EXPECT_TRUE(port.hasData());
+    EXPECT_TRUE(port.has_data());
 
     auto peek2 = port.peek();
     ASSERT_TRUE(peek2.has_value());
     EXPECT_EQ(peek2->id, 1);
 
     // Можно извлечь после peek
-    auto recvd = port.tryRecv();
+    auto recvd = port.try_recv();
     EXPECT_TRUE(recvd.has_value());
 }
 
@@ -139,14 +139,14 @@ TEST(PortTest, BackpressureScenario) {
     Packet pkt2(4, 5, 6);
 
     // Нельзя отправить когда полный
-    EXPECT_TRUE(port.trySend(pkt1));
-    EXPECT_FALSE(port.trySend(pkt2));
+    EXPECT_TRUE(port.try_send(pkt1));
+    EXPECT_FALSE(port.try_send(pkt2));
 
     // Можно отправить после извлечения
-    port.tryRecv();
-    EXPECT_TRUE(port.trySend(pkt2));
+    port.try_recv();
+    EXPECT_TRUE(port.try_send(pkt2));
 
-    auto result = port.tryRecv();
+    auto result = port.try_recv();
     ASSERT_TRUE(result.has_value());
     EXPECT_EQ(result->id, 4);
 }
@@ -157,7 +157,7 @@ TEST(PortTest, PacketIndependence) {
     Packet original(1, 2, 3);
 
     // Сохраненный пакет - копия
-    port.trySend(original);
+    port.try_send(original);
 
     // Модифицируем оригинал
     original.id = 99;
@@ -171,9 +171,9 @@ TEST(PortTest, PacketIndependence) {
 TEST(PortTest, EdgeCases) {
     Port port;
 
-    // tryRecv на пустом, затем trySend
-    port.tryRecv();  // Должно быть безопасно
-    EXPECT_TRUE(port.trySend(Packet(1, 2, 3)));
+    // try_recv на пустом, затем try_send
+    port.try_recv();  // Должно быть безопасно
+    EXPECT_TRUE(port.try_send(Packet(1, 2, 3)));
 
     // Множественные peek не меняют состояние
     for (int i = 0; i < 5; ++i) {
@@ -182,8 +182,8 @@ TEST(PortTest, EdgeCases) {
         EXPECT_EQ(peeked->id, 1);
     }
 
-    EXPECT_TRUE(port.hasData());
-    EXPECT_FALSE(port.isReady());
+    EXPECT_TRUE(port.has_data());
+    EXPECT_FALSE(port.is_ready());
 }
 
 // Тест: пакет с максимальными значениями
@@ -191,9 +191,9 @@ TEST(PortTest, PacketWithMaxValues) {
     Port port;
     Packet pkt(INT_MAX, INT_MAX, INT_MAX);
 
-    EXPECT_TRUE(port.trySend(pkt));
+    EXPECT_TRUE(port.try_send(pkt));
 
-    auto received = port.tryRecv();
+    auto received = port.try_recv();
     ASSERT_TRUE(received.has_value());
     EXPECT_EQ(received->id, INT_MAX);
     EXPECT_EQ(received->src, INT_MAX);
@@ -208,9 +208,9 @@ TEST(PortTest, MultipleOperations) {
         Packet pkt(i, i+1, i+2);
 
         // Отправляем
-        EXPECT_TRUE(port.trySend(pkt));
-        EXPECT_TRUE(port.hasData());
-        EXPECT_FALSE(port.isReady());
+        EXPECT_TRUE(port.try_send(pkt));
+        EXPECT_TRUE(port.has_data());
+        EXPECT_FALSE(port.is_ready());
 
         // Проверяем через peek
         auto peeked = port.peek();
@@ -218,12 +218,12 @@ TEST(PortTest, MultipleOperations) {
         EXPECT_EQ(peeked->id, i);
 
         // Извлекаем
-        auto received = port.tryRecv();
+        auto received = port.try_recv();
         ASSERT_TRUE(received.has_value());
         EXPECT_EQ(received->id, i);
 
         // Порт снова пуст
-        EXPECT_FALSE(port.hasData());
-        EXPECT_TRUE(port.isReady());
+        EXPECT_FALSE(port.has_data());
+        EXPECT_TRUE(port.is_ready());
     }
 }

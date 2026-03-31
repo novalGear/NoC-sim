@@ -136,7 +136,7 @@ public:
      * Реализует механизм backpressure на границе сети.
      * @see Router, Port
      */
-    virtual bool injectPacket(int srcNodeId, const Packet& pkt) = 0;
+    virtual bool inject_packet(int srcNodeId, const Packet& pkt) = 0;
 
     /**
      * @brief Извлечение доставленного пакета из сети.
@@ -149,7 +149,7 @@ public:
      * Обычно вызывается после on_clock() для проверки прибытия пакетов.
      * @see Router, Port
      */
-    virtual bool ejectPacket(int dstNodeId, Packet& outPkt) = 0;
+    virtual std::optional<Packet> eject_packet(int dstNodeId) = 0;
 
     /**
      * @brief Получение указателя на роутер по его универсальному ID.
@@ -162,7 +162,7 @@ public:
      * Если наследник использует другую схему маппинга, он должен переопределить этот метод.
      * @see Router
      */
-    virtual Router* getRouter(int nodeId) {
+    virtual Router* get_router(int nodeId) {
         if (nodeId < 0 || nodeId >= total_nodes) return nullptr;
         // Безопасный доступ, так как размер вектора должен совпадать с total_nodes
         if (nodeId >= static_cast<int>(routers.size())) return nullptr;
@@ -202,11 +202,11 @@ public:
      * @brief Получить общее количество узлов в сети.
      * @return int Количество узлов.
      */
-    [[nodiscard]] int getTotalNodes() const { return total_nodes; }
+    [[nodiscard]] int get_total_nodes() const { return total_nodes; }
 
     /**
      * @brief Получить название используемого алгоритма маршрутизации.
      * @return std::string Название алгоритма.
      */
-    [[nodiscard]] const std::string& getRoutingAlgo() const { return routing_algo; }
+    [[nodiscard]] const std::string& get_routing_algo() const { return routing_algo; }
 };

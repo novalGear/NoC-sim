@@ -14,6 +14,8 @@
 #include <memory>
 #include <cassert>
 
+class MeshInterconnectTest;
+
 /**
  * @class MeshInterconnect
  * @brief Интерконнект с топологией двумерной сетки (Mesh).
@@ -29,6 +31,8 @@
  */
 class MeshInterconnect final : public Interconnect {
 private:
+    friend class MeshInterconnectTest;
+
     int width_;   ///< Ширина сетки (количество столбцов)
     int height_;  ///< Высота сетки (количество строк)
     int total_nodes_;
@@ -65,6 +69,12 @@ private:
     void init_routers();
 
     /**
+     * @brief зарегистрировать локальный порт у router
+     * @param node_idx индекс router
+     */
+    void reg_local_ports(int node_idx);
+
+    /**
      * @brief Соединить все роутеры портами
      * @details Соединяет каждый роутер с соседями NORTH и EAST
      */
@@ -73,9 +83,9 @@ private:
     /**
      * @brief Соединить роутер с соседним по выбранному направлению
      * @param[in] node_idx: индекс соединяемого роутера
-     * @param[in] 1_to_2_dir: направление на соседа (1->2)
+     * @param[in] dir_1_to_2: направление на соседа (1->2)
      */
-    void MeshInterconnect::link_routers(size_t node_idx, MeshDirection 1_to_2_dir);
+    void link_routers(size_t node_idx, MeshDirection dir_1_to_2);
 
 public:
     /**
@@ -88,8 +98,8 @@ public:
      */
     MeshInterconnect(int w, int h, const std::string& routing_algo = "DOR")
         : Interconnect(w * h, routing_algo)
-        , width(w)
-        , height(h)
+        , width_(w)
+        , height_(h)
         , total_nodes_(w * h)
     {
         assert(w > 0 && "Width must be positive");
@@ -134,16 +144,16 @@ public:
      * @param[in] pkt Пакет для отправки
      * @return true если пакет принят в локальный порт
      */
-    bool inject_packet(int src_node_idx, const Packet& pkt) override;
+    bool inject_packet(int src_node_idx, const Packet& pkt);
 
     /**
      * @brief Извлечь пакет из сети.
      * @param[in] dstNodeId ID узла-назначения
      * @return true если пакет извлечен
      */
-    std::optional<Packet> eject_packet(int dst_node_idx) override;
+    std::optional<Packet> eject_packet(int dst_node_idx);
 
     // Геттеры
-    [[nodiscard]] int get_width() const { return width; }
-    [[nodiscard]] int get_height() const { return height; }
+    [[nodiscard]] int get_width() const { return width_; }
+    [[nodiscard]] int get_height() const { return height_; }
 };

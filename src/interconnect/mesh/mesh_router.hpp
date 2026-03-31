@@ -13,6 +13,8 @@
 #include "mesh_utils.hpp"
 #include <unordered_map>
 
+class MeshInterconnectTest;
+
 /**
  * @class MeshRouter
  * @brief Маршрутизатор для двумерной Mesh топологии с X-Y маршрутизацией.
@@ -27,59 +29,12 @@
  * и определяются внешним кодом (MeshInterconnect) при построении топологии.
  */
 class MeshRouter final : public Router {
+
+// ЭТО ТОЛЬКО ВРЕМЕННО РАДИ ТЕСТОВ!!!!!!!!!!!!!!
 public:
-    /**
-     * @brief Конструктор MeshRouter.
-     * @param[in] id Уникальный идентификатор роутера
-     * @param[in] x Координата X в сетке
-     * @param[in] y Координата Y в сетке
-     * @param[in] width  Ширина всей mesh сетки
-     * @param[in] height Высота всей mesh сетки
-     *
-     * @note Порты не создаются в конструкторе - они будут добавлены позже
-     *       через registerInputPort/registerOutputPort.
-     */
-    MeshRouter(int id, int x, int y, int width, int height);
+// private:
+    // friend class MeshInterconnectTest;
 
-    /**
-     * @brief Получить координаты роутера.
-     * @see MeshCoords
-     */
-    [[nodiscard]] MeshCoords get_coords() const { return coords; }
-
-    /**
-     * @brief Проверить наличие входного порта в заданном направлении.
-     * @param[in] dir Направление
-     * @return true если порт существует
-     */
-    [[nodiscard]] inline bool has_in_port(MeshDirection dir) const {
-        return in_ports_mask.test(static_cast<size_t>(dir));
-    }
-
-    /**
-     * @brief Проверить наличие выходного порта в заданном направлении.
-     * @param[in] dir Направление
-     * @return true если порт существует
-     */
-    [[nodiscard]] inline bool has_out_port(MeshDirection dir) const {
-        return out_ports_mask.test(static_cast<size_t>(dir));
-    }
-
-    /**
-     * @brief Отправить пакет в сеть.
-     * @param[in] pkt Пакет для отправки
-     * @return true если пакет принят в локальный порт
-     */
-    bool inject_packet(const& Packet pkt);
-
-    /**
-     * @brief Извлечь пакет из сети.
-     * @param[out] out_pkt Ссылка для сохранения пакета
-     * @return true если пакет извлечен
-     */
-    bool eject_packet(const& Packet out_pkt);
-
-private:
     MeshCoords coords;           ///< Координаты в сетке
     int grid_width;              ///< Ширина всей сетки
     int grid_height;             ///< Высота всей сетки
@@ -138,4 +93,57 @@ private:
      * @param[in] dir Направление порта
      */
     Port* get_out_port(MeshDirection dir);
+
+
+// public:
+    /**
+     * @brief Конструктор MeshRouter.
+     * @param[in] id Уникальный идентификатор роутера
+     * @param[in] x Координата X в сетке
+     * @param[in] y Координата Y в сетке
+     * @param[in] width  Ширина всей mesh сетки
+     * @param[in] height Высота всей mesh сетки
+     *
+     * @note Порты не создаются в конструкторе - они будут добавлены позже
+     *       через registerInputPort/registerOutputPort.
+     */
+    MeshRouter(int id, int x, int y, int width, int height);
+
+    /**
+     * @brief Получить координаты роутера.
+     * @see MeshCoords
+     */
+    [[nodiscard]] MeshCoords get_coords() const { return coords; }
+
+    /**
+     * @brief Проверить наличие входного порта в заданном направлении.
+     * @param[in] dir Направление
+     * @return true если порт существует
+     */
+    [[nodiscard]] inline bool has_in_port(MeshDirection dir) const {
+        return in_ports_mask.test(static_cast<size_t>(dir));
+    }
+
+    /**
+     * @brief Проверить наличие выходного порта в заданном направлении.
+     * @param[in] dir Направление
+     * @return true если порт существует
+     */
+    [[nodiscard]] inline bool has_out_port(MeshDirection dir) const {
+        return out_ports_mask.test(static_cast<size_t>(dir));
+    }
+
+    /**
+     * @brief Отправить пакет в сеть.
+     * @param[in] pkt Пакет для отправки
+     * @return true если пакет принят в локальный порт
+     */
+    bool inject_packet(const Packet& pkt);
+
+    /**
+     * @brief Извлечь пакет из сети.
+     * @return Packet, если пакет извлечен, иначе std::nullopt
+     */
+    std::optional<Packet> eject_packet();
+
 };

@@ -9,17 +9,12 @@
 #include "rr_arbiter.hpp"
 #include "packet.hpp"
 
-/**
- * @class RRArbiterTest
- * @brief Фикстура для тестов арбитра.
- */
 class RRArbiterTest : public ::testing::Test {
 protected:
     static constexpr int PORT_COUNT = 4;
     RRArbiter arbiter{PORT_COUNT};
 
-    // Хелпер: создать запрос от порта
-    Request makeRequest(int port_idx) {
+    Request make_request(int port_idx) {
         return Request{port_idx};
     }
 };
@@ -32,94 +27,202 @@ TEST_F(RRArbiterTest, EmptyRequestList) {
 }
 
 TEST_F(RRArbiterTest, SingleRequestWins) {
-    std::vector<Request> reqs = {makeRequest(2)};
+    std::vector<Request> reqs = {make_request(2)};
     int winner = arbiter.arbitrate(reqs, 0);
 
-    EXPECT_EQ(winner, 0); // Индекс в векторе
+    EXPECT_EQ(winner, 0);
     EXPECT_EQ(reqs[winner].src, 2);
 }
 
 // === Тесты алгоритма Round-Robin ===
 
 TEST_F(RRArbiterTest, RoundRobin_CyclicOrder) {
-    // Голова начинает с 0
-    // Запросы от всех портов: должен выиграть ближайший к голове (0)
     std::vector<Request> reqs = {
-        makeRequest(0), makeRequest(1),
-        makeRequest(2), makeRequest(3)
+        make_request(0), make_request(1),
+        make_request(2), make_request(3)
     };
 
-    // Такт 1: голова=0 → побеждает порт 0
     int w1 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w1].src, 0);
 
-    // Такт 2: голова=1 → побеждает порт 1
     int w2 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w2].src, 1);
 
-    // Такт 3: голова=2 → побеждает порт 2
     int w3 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w3].src, 2);
 
-    // Такт 4: голова=3 → побеждает порт 3
     int w4 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w4].src, 3);
 
-    // Такт 5: голова=0 (цикл замкнулся) → снова порт 0
     int w5 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w5].src, 0);
 }
 
 TEST_F(RRArbiterTest, RoundRobin_SkipsNonRequesting) {
-    // Запрошены только порты 1 и 3, голова = 0
-    std::vector<Request> reqs = {makeRequest(1), makeRequest(3)};
+    std::vector<Request> reqs = {make_request(1), make_request(3)};
 
-    // dist(1) = (1+4-0)%4 = 1
-    // dist(3) = (3+4-0)%4 = 3
-    // Побеждает порт 1 (меньшее расстояние)
     int w1 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w1].src, 1);
 
-    // Теперь голова = 2
-    // dist(1) = (1+4-2)%4 = 3
-    // dist(3) = (3+4-2)%4 = 1
-    // Побеждает порт 3
     int w2 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w2].src, 3);
 }
 
-TEST_F(RRArbiterTest, NoStarvation) {
-    // Проверка, что порт не голодает при постоянных запросах от других
-    // Запрошены порты 0 и 2, голова = 0
-    std::vector<Request> reqs = {makeRequest(0), makeRequest(2)};
+TEST_F(RRArbiterTest, RoundRobin_ComplexPattern) {
+    std::vector<Request> reqs = {make_request(0), make_request(2), make_request(3)};
 
-    // Порт 0 выигрывает первый раз (dist=0)
     int w1 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w1].src, 0);
 
-    // Голова сдвинулась на 1. Теперь:
-    // dist(0) = 3, dist(2) = 1 → побеждает порт 2
     int w2 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w2].src, 2);
 
-    // Голова = 3.
-    // dist(0) = 1, dist(2) = 3 → снова побеждает порт 0
+    int w3 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w3].src, 3);
+
+    int w4 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w4].src, 0);
+}
+
+TEST_F(RRArbiterTest, NoStarvation) {
+    std::vector<Request> reqs = {make_request(0), make_request(2)};
+
+    int w1 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w1].src, 0);
+
+    int w2 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w2].src, 2);
+
     int w3 = arbiter.arbitrate(reqs, 0);
     EXPECT_EQ(reqs[w3].src, 0);
+}
 
-    // Порт 0 не голодает, хотя порт 2 тоже постоянно запрашивает
+TEST_F(RRArbiterTest, AllPortsRequesting_Rotation) {
+    std::vector<Request> all_ports = {
+        make_request(0), make_request(1), make_request(2), make_request(3)
+    };
+
+    std::vector<int> winners;
+    for (int i = 0; i < 8; ++i) {
+        int winner_idx = arbiter.arbitrate(all_ports, 0);
+        winners.push_back(all_ports[winner_idx].src);
+    }
+
+    std::vector<int> expected = {0, 1, 2, 3, 0, 1, 2, 3};
+    EXPECT_EQ(winners, expected);
 }
 
 // === Тесты параметра outputPortId ===
 
 TEST_F(RRArbiterTest, OutputPortIdIgnored) {
-    // outputPortId не влияет на логику, только для отладки
-    std::vector<Request> reqs = {makeRequest(1)};
+    std::vector<Request> reqs = {make_request(1)};
 
     int r1 = arbiter.arbitrate(reqs, 0);
     int r2 = arbiter.arbitrate(reqs, 999);
+    int r3 = arbiter.arbitrate(reqs, -1);
+    int r4 = arbiter.arbitrate(reqs, 42);
 
-    // Результат должен быть одинаковым
     EXPECT_EQ(r1, r2);
+    EXPECT_EQ(r1, r3);
+    EXPECT_EQ(r1, r4);
     EXPECT_EQ(reqs[r1].src, 1);
+}
+
+// === Тесты граничных условий ===
+
+TEST_F(RRArbiterTest, SinglePortMultipleRequests) {
+    std::vector<Request> reqs = {make_request(0), make_request(0), make_request(0)};
+
+    int winner = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(winner, 0);
+    EXPECT_EQ(reqs[winner].src, 0);
+}
+
+TEST_F(RRArbiterTest, EdgePorts) {
+    std::vector<Request> reqs = {make_request(0), make_request(3)};
+
+    int w1 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w1].src, 0);
+
+    int w2 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w2].src, 3);
+
+    int w3 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w3].src, 0);
+}
+
+TEST_F(RRArbiterTest, MaximumPortCount) {
+    const int MAX_PORTS = 100;
+    RRArbiter big_arbiter(MAX_PORTS);
+
+    std::vector<Request> reqs;
+    for (int i = 0; i < MAX_PORTS; ++i) {
+        reqs.push_back(make_request(i));
+    }
+
+    for (int cycle = 0; cycle < 3; ++cycle) {
+        for (int expected_port = 0; expected_port < MAX_PORTS; ++expected_port) {
+            int winner_idx = big_arbiter.arbitrate(reqs, 0);
+            EXPECT_EQ(reqs[winner_idx].src, expected_port);
+        }
+    }
+}
+
+// === Тесты последовательных вызовов ===
+
+TEST_F(RRArbiterTest, SequentialCalls_MaintainState) {
+    std::vector<Request> reqs = {make_request(0), make_request(1)};
+
+    int w1 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w1].src, 0);
+
+    int w2 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w2].src, 1);
+
+    int w3 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w3].src, 0);
+
+    int w4 = arbiter.arbitrate(reqs, 0);
+    EXPECT_EQ(reqs[w4].src, 1);
+}
+
+TEST_F(RRArbiterTest, MixedRequestSets) {
+    std::vector<Request> reqs_0_2 = {make_request(0), make_request(2)};
+    std::vector<Request> reqs_1_3 = {make_request(1), make_request(3)};
+
+    int w1 = arbiter.arbitrate(reqs_0_2, 0);
+    EXPECT_EQ(reqs_0_2[w1].src, 0);
+
+    int w2 = arbiter.arbitrate(reqs_1_3, 0);
+    EXPECT_EQ(reqs_1_3[w2].src, 1);
+
+    int w3 = arbiter.arbitrate(reqs_0_2, 0);
+    EXPECT_EQ(reqs_0_2[w3].src, 2);
+
+    int w4 = arbiter.arbitrate(reqs_1_3, 0);
+    EXPECT_EQ(reqs_1_3[w4].src, 3);
+}
+
+// === Тесты на производительность ===
+
+TEST_F(RRArbiterTest, ManyArbitrations) {
+    std::vector<Request> reqs = {make_request(0), make_request(1), make_request(2)};
+
+    for (int i = 0; i < 1000; ++i) {
+        int winner = arbiter.arbitrate(reqs, 0);
+        EXPECT_GE(winner, 0);
+        EXPECT_LT(winner, static_cast<int>(reqs.size()));
+    }
+}
+
+// === Тесты с разными outputPortId ===
+
+TEST_F(RRArbiterTest, DifferentOutputPortsIndependent) {
+    std::vector<Request> reqs = {make_request(0), make_request(1)};
+
+    EXPECT_EQ(reqs[arbiter.arbitrate(reqs, 0)].src, 0);
+    EXPECT_EQ(reqs[arbiter.arbitrate(reqs, 1)].src, 1);
+    EXPECT_EQ(reqs[arbiter.arbitrate(reqs, 2)].src, 0);
+    EXPECT_EQ(reqs[arbiter.arbitrate(reqs, 3)].src, 1);
+    EXPECT_EQ(reqs[arbiter.arbitrate(reqs, 4)].src, 0);
 }
