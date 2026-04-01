@@ -10,6 +10,7 @@
 #include "packet.hpp"
 #include "port.hpp"
 #include "rr_arbiter.hpp"
+#include "debug.hpp"
 
 #include <vector>
 #include <optional>
@@ -163,6 +164,8 @@ public:
             if (pkt_opt.has_value()) {
                 // Определяем целевой выход для пакета
                 int out_idx = route_pkt(pkt_opt.value());
+                DEBUG_PRINT("Router " << id << ": packet from in_port[" << in_idx
+                       << "] -> out_port[" << out_idx << "] (dst=" << pkt_opt->dst << ")");
                 assert(out_idx >= 0 && out_idx < out_port_count &&
                        "Route function returned invalid port index");
 
@@ -228,6 +231,7 @@ public:
 
         for (int out_idx = 0; out_idx < out_port_count; ++out_idx) {
             if (output_ports[out_idx] == nullptr) {
+                DEBUG_PRINT("ERROR: output_ports[" << out_idx << "] is nullptr!");
                 continue;
             }
             int in_idx = senders_list[out_idx];
@@ -241,6 +245,8 @@ public:
 
                 // Отправляем пакет в выходной порт
                 bool sent = output_ports[out_idx]->try_send(pkt_opt.value());
+                DEBUG_PRINT("Router " << id << ": moving packet from in_port[" << in_idx
+                       << "] to out_port[" << out_idx << "] (id=" << pkt_opt->id << ")");
                 assert(sent && "Output port should be ready (checked with isReady)");
             }
             // Если выход занят, пакет остается во входном порту (backpressure)

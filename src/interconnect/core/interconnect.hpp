@@ -52,6 +52,7 @@ struct SimStats {
  *
  * @see Router, MeshInterconnect, ButterflyInterconnect
  */
+template<typename RouterType>
 class Interconnect {
 protected:
     // === Данные, общие для всех топологий ===
@@ -64,7 +65,7 @@ protected:
      * @details Владеет объектами роутеров. Гарантирует их удаление при разрушении сети.
      *          Наследники заполняют этот вектор в методе build().
      */
-    std::vector<std::unique_ptr<Router>> routers;
+    std::vector<std::unique_ptr<RouterType>> routers_;
 
     /**
      * @brief Защищенный конструктор для инициализации общих полей.
@@ -165,8 +166,8 @@ public:
     virtual Router* get_router(int nodeId) {
         if (nodeId < 0 || nodeId >= total_nodes) return nullptr;
         // Безопасный доступ, так как размер вектора должен совпадать с total_nodes
-        if (nodeId >= static_cast<int>(routers.size())) return nullptr;
-        return routers[nodeId].get();
+        if (nodeId >= static_cast<int>(routers_.size())) return nullptr;
+        return routers_[nodeId].get();
     }
 
     // === Шаблонные методы (Template Methods) ===

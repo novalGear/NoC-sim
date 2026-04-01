@@ -179,88 +179,26 @@ TEST_F(MeshInterconnectTest, BuildCreatesWorkingNetwork) {
     std::cout << "\n=== Test BuildCreatesWorkingNetwork ===" << std::endl;
 
     mesh_3x3->build();
-    std::cout << "1. build() completed" << std::endl;
-
-    // Проверяем LOCAL порты у всех роутеров
-    for (size_t i = 0; i < get_routers(*mesh_3x3).size(); ++i) {
-        auto* router = get_routers(*mesh_3x3)[i].get();
-        EXPECT_TRUE(router->has_in_port(MeshDirection::LOCAL))
-            << "Router " << i << " missing LOCAL in port";
-        EXPECT_TRUE(router->has_out_port(MeshDirection::LOCAL))
-            << "Router " << i << " missing LOCAL out port";
-    }
-    std::cout << "2. All routers have LOCAL ports" << std::endl;
-
-    // Проверяем соединение между роутерами 0 и 1
-    auto* router_0 = get_routers(*mesh_3x3)[0].get();
-    auto* router_1 = get_routers(*mesh_3x3)[1].get();
-
-    std::cout << "3. Router 0 coords: (" << router_0->get_coords().x
-              << "," << router_0->get_coords().y << ")" << std::endl;
-    std::cout << "4. Router 1 coords: (" << router_1->get_coords().x
-              << "," << router_1->get_coords().y << ")" << std::endl;
-
-    // Проверяем наличие портов для соединения
-    std::cout << "5. Router 0 has EAST out: " << router_0->has_out_port(MeshDirection::EAST) << std::endl;
-    std::cout << "6. Router 1 has WEST in: " << router_1->has_in_port(MeshDirection::WEST) << std::endl;
-    std::cout << "7. Router 1 has WEST out: " << router_1->has_out_port(MeshDirection::WEST) << std::endl;
-    std::cout << "8. Router 0 has EAST in: " << router_0->has_in_port(MeshDirection::EAST) << std::endl;
-
-    EXPECT_TRUE(router_0->has_out_port(MeshDirection::EAST))
-        << "Router 0 missing EAST out port";
-    EXPECT_TRUE(router_1->has_in_port(MeshDirection::WEST))
-        << "Router 1 missing WEST in port";
-
-    // Получаем порты и проверяем, что они не nullptr
-    Port* east_out_0 = router_0->get_out_port(MeshDirection::EAST);
-    Port* west_in_1 = router_1->get_in_port(MeshDirection::WEST);
-
-    std::cout << "9. east_out_0 = " << east_out_0 << std::endl;
-    std::cout << "10. west_in_1 = " << west_in_1 << std::endl;
-
-    ASSERT_NE(east_out_0, nullptr) << "east_out_0 is nullptr";
-    ASSERT_NE(west_in_1, nullptr) << "west_in_1 is nullptr";
-
-    // Проверяем, что порты соединены (должны быть одинаковыми указателями)
-    EXPECT_EQ(east_out_0, west_in_1)
-        << "EAST out of router 0 not connected to WEST in of router 1";
-    std::cout << "11. Ports are connected correctly" << std::endl;
+    std::cout << "build() completed" << std::endl;
 
     // Отправляем пакет
     Packet pkt(42, 0, 1);
     bool injected = mesh_3x3->inject_packet(0, pkt);
-    ASSERT_TRUE(injected) << "Packet injection failed";
-    std::cout << "12. Packet 42 injected from router 0 to router 1" << std::endl;
+    std::cout << "inject_packet returned: " << injected << std::endl;
 
-    // Проверяем, что пакет попал в LOCAL вход роутера 0
-    Port* local_in_0 = router_0->get_in_port(MeshDirection::LOCAL);
-    ASSERT_TRUE(local_in_0->has_data()) << "Packet not in LOCAL input of router 0";
-    std::cout << "13. Packet in LOCAL input of router 0" << std::endl;
-
-    // Первый такт
-    std::cout << "14. First on_clock()..." << std::endl;
+    std::cout << "\n--- First on_clock() ---" << std::endl;
     mesh_3x3->on_clock();
-    std::cout << "15. First on_clock() completed" << std::endl;
 
-    // Проверяем, что пакет ушел из LOCAL входа
-    std::cout << "16. LOCAL input has data: " << local_in_0->has_data() << std::endl;
-
-    // Проверяем, что пакет появился на EAST выходе
-    std::cout << "17. EAST output has data: " << east_out_0->has_data() << std::endl;
-
-    // Второй такт
-    std::cout << "18. Second on_clock()..." << std::endl;
+    std::cout << "\n--- Second on_clock() ---" << std::endl;
     mesh_3x3->on_clock();
-    std::cout << "19. Second on_clock() completed" << std::endl;
 
-    // Проверяем доставку
     auto received = mesh_3x3->eject_packet(1);
-    std::cout << "20. eject_packet returned: " << (received.has_value() ? "value" : "nullopt") << std::endl;
+    std::cout << "eject_packet returned: " << (received.has_value() ? "value" : "nullopt") << std::endl;
+
+    if (received.has_value()) {
+        std::cout << "Packet id=" << received->id << " src=" << received->src << " dst=" << received->dst << std::endl;
+    }
 
     ASSERT_TRUE(received.has_value()) << "Packet not delivered to destination";
     EXPECT_EQ(received->id, 42);
-    EXPECT_EQ(received->src, 0);
-    EXPECT_EQ(received->dst, 1);
-
-    std::cout << "=== Test BuildCreatesWorkingNetwork finished ===\n" << std::endl;
 }

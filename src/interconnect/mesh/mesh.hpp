@@ -29,7 +29,7 @@ class MeshInterconnectTest;
  *
  * Нумерация узлов: nodeId = y * width + x
  */
-class MeshInterconnect final : public Interconnect {
+class MeshInterconnect final : public Interconnect<MeshRouter> {
 private:
     friend class MeshInterconnectTest;
 
@@ -37,7 +37,7 @@ private:
     int height_;  ///< Высота сетки (количество строк)
     int total_nodes_;
     /// Все роутеры сети (владение)
-    std::vector<std::unique_ptr<MeshRouter>> routers_;
+    // std::vector<std::unique_ptr<MeshRouter>> routers_;
 
     /// Все порты сети (владение)
     std::vector<std::unique_ptr<Port>> all_ports_;
@@ -133,7 +133,7 @@ public:
      * @details Вызывает on_clock() для всех роутеров в сетке.
      */
     void on_clock() override {
-        for (auto& router : routers) {
+        for (auto& router : routers_) {
             router->on_clock();
         }
     }

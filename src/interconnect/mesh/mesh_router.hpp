@@ -8,10 +8,11 @@
 #pragma once
 
 #include <bitset>
+#include <unordered_map>
 
+#include "debug.hpp"
 #include "router.hpp"
 #include "mesh_utils.hpp"
-#include <unordered_map>
 
 class MeshInterconnectTest;
 

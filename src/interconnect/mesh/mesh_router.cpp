@@ -9,19 +9,38 @@ MeshRouter::MeshRouter(int id, int x, int y, int width, int height)
 {
     assert(width  > 0 && "Width must be positive");
     assert(height > 0 && "Height must be positive");
+    DEBUG_PRINT_COORDS(this);
 }
 
 int MeshRouter::route_pkt(const Packet& pkt) const {
     MeshCoords dst_coords = id2coords(pkt.dst, grid_width);
     MeshDirection dst_dir;
+    DEBUG_PRINT_ROUTER(this, "route_pkt: from (" << coords.x << ","
+                       << coords.y << ") to dst=" << pkt.dst << " ("
+                       << dst_coords.x << "," << dst_coords.y << ")");
     // Сначала двигаемся вдоль оси x
-    if (dst_coords.x > coords.x)      { dst_dir = MeshDirection::EAST; }
-    else if (dst_coords.x < coords.x) { dst_dir = MeshDirection::WEST; }
+    if (dst_coords.x > coords.x)      {
+        dst_dir = MeshDirection::EAST;
+        DEBUG_PRINT_ROUTER(this, "  -> EAST");
+    }
+    else if (dst_coords.x < coords.x) {
+        dst_dir = MeshDirection::WEST;
+        DEBUG_PRINT_ROUTER(this, "  -> WEST");
+    }
     // Потом вдоль оси y
-    else if (dst_coords.y > coords.y) { dst_dir = MeshDirection::NORTH; }
-    else if (dst_coords.y < coords.y) { dst_dir = MeshDirection::SOUTH; }
+    else if (dst_coords.y > coords.y) {
+        dst_dir = MeshDirection::NORTH;
+        DEBUG_PRINT_ROUTER(this, "  -> NORTH");
+    }
+    else if (dst_coords.y < coords.y) {
+        dst_dir = MeshDirection::SOUTH;
+        DEBUG_PRINT_ROUTER(this, "  -> SOUTH");
+    }
     // Прибыли в конечный пункт
-    else { dst_dir = MeshDirection::LOCAL; }
+    else {
+        dst_dir = MeshDirection::LOCAL;
+        DEBUG_PRINT_ROUTER(this, "  -> LOCAL");
+    }
 
     assert(has_out_port(dst_dir) && "No such output port");
     return static_cast<int>(dst_dir);
@@ -64,6 +83,7 @@ void MeshRouter::register_out_port(MeshDirection dir, Port* port) {
 }
 
 bool MeshRouter::inject_packet(const Packet& pkt) {
+    DEBUG_PRINT_ROUTER(this, "inject_packet: id=" << pkt.id << " dst=" << pkt.dst);
     assert(has_in_port(MeshDirection::LOCAL));
     Port* local_in_port = get_in_port(MeshDirection::LOCAL);
     assert(local_in_port);
@@ -71,6 +91,7 @@ bool MeshRouter::inject_packet(const Packet& pkt) {
 }
 
 std::optional<Packet> MeshRouter::eject_packet() {
+    DEBUG_PRINT_ROUTER(this, "eject_packet");
     assert(has_out_port(MeshDirection::LOCAL));
     Port* local_out_port = get_out_port(MeshDirection::LOCAL);
     assert(local_out_port);
