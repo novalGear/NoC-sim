@@ -67,7 +67,7 @@ static MeshDirection opposite(MeshDirection dir) {
  * @details mask[k] - существует (1) или нет (0) k-ый порт,
  * обычно используется через направления, а не индексы в массиве портов
  */
-using MeshPortMask = std::bitset<static_cast<size_t>(MeshDirection::COUNT)>;
+;
 
 //=============================================================================
 // Координаты

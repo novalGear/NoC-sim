@@ -69,10 +69,25 @@ target_link_libraries(mesh_integration_tests
 target_include_directories(mesh_integration_tests PRIVATE ${TEST_INCLUDE_DIRS})
 gtest_discover_tests(mesh_integration_tests)
 
+# Simulation tests
+add_executable(simulation_tests simulation_test.cpp)
+target_link_libraries(simulation_tests PRIVATE
+    GTest::GTest
+    GTest::Main
+    pthread
+    network_lib
+    mesh_lib
+    interconnect_core
+    nlohmann_json::nlohmann_json
+)
+target_include_directories(simulation_tests PRIVATE ${TEST_INCLUDE_DIRS})
+gtest_discover_tests(simulation_tests)
+
+
 # 7. Глобальная цель для запуска всех тестов
 add_custom_target(run_all_tests
     COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_CURRENT_BINARY_DIR} --output-on-failure
-    DEPENDS port_tests arbiter_tests mesh_integration_tests mesh_utils_tests mesh_router_tests
+    DEPENDS port_tests arbiter_tests mesh_integration_tests mesh_utils_tests mesh_router_tests simulation_tests
     COMMENT "Running all NoC Simulator unit tests..."
     VERBATIM
 )

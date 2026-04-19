@@ -1,0 +1,33 @@
+{
+    "average_hops": 0.0,
+    "average_latency": 2.12,
+    "delivered": 50,
+    "lost": 0,
+    "nodes": [
+        {
+            "node_id": 0,
+            "received": 10,
+            "send_failures": 19,
+            "sent": 15
+        },
+        {
+            "node_id": 1,
+            "received": 16,
+            "send_failures": 5,
+            "sent": 7
+        },
+        {
+            "node_id": 2,
+            "received": 9,
+            "send_failures": 19,
+            "sent": 16
+        },
+        {
+            "node_id": 3,
+            "received": 15,
+            "send_failures": 12,
+            "sent": 12
+        }
+    ],
+    "total_packets": 50
+}

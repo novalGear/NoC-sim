@@ -40,9 +40,6 @@ public:
     int grid_width;              ///< Ширина всей сетки
     int grid_height;             ///< Высота всей сетки
 
-    MeshPortMask in_ports_mask;    ///< Маска существования входных портов
-    MeshPortMask out_ports_mask;   ///< Маска существования выходных портов
-
     // Дружественный класс для доступа к регистрации портов
     friend class MeshInterconnect;
 

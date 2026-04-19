@@ -14,14 +14,43 @@
  * @brief Представляет пакет данных, передаваемый через интерконнект.
  */
 struct Packet {
-    int id;             ///< Уникальный идентификатор пакета
-    int src;            ///< ID узла-источника
-    int dst;            ///< ID узла-назначения
-    int current_hop;    ///< Счетчик хопов (для статистики задержек)
+    int id;
+    int src;
+    int dst;
 
-    Packet() : id(0), src(0), dst(0), current_hop(0) {}
+    // Метрики
+    int send_tick = -1;      // такт, когда пакет был инжектирован в сеть
+    int recv_tick = -1;      // такт, когда пакет был извлечен из сети
+    int hops = 0;           // количество совершенных хопов
+
+    // Полезная нагрузка (для моделирования трафика)
+    int size;           // размер в байтах или флитах
+    // Или generic: std::vector<uint8_t> payload;
+
+    // Тип трафика (для QoS)
+    enum class TrafficType { REQUEST, RESPONSE, BULK_DATA };
+    TrafficType type;
+
+    Packet() : id(0), src(0), dst(0), send_tick(-1), recv_tick(-1), hops(0), size(1) {}
+
     Packet(int _id, int _src, int _dst)
-        : id(_id), src(_src), dst(_dst), current_hop(0) {}
+        : id(_id), src(_src), dst(_dst), send_tick(-1), recv_tick(-1), hops(0), size(1) {}
+
+    Packet(int _id, int _src, int _dst, int _send_tick)
+        : id(_id), src(_src), dst(_dst), send_tick(_send_tick), recv_tick(-1), hops(0), size(1) {}
+
+    Packet(int _id, int _src, int _dst, int _send_tick, int _size)
+        : id(_id), src(_src), dst(_dst), send_tick(_send_tick), recv_tick(-1), hops(0), size(_size) {}
+
+    Packet(int _id, int _src, int _dst, int _send_tick, int _size, TrafficType _type)
+        : id(_id), src(_src), dst(_dst), send_tick(_send_tick), recv_tick(-1), hops(0), size(_size), type(_type) {}
+
+    int latency() const {
+        if (send_tick >= 0 && recv_tick >= 0) {
+            return recv_tick - send_tick;
+        }
+        return -1;
+    }
 };
 
 /**

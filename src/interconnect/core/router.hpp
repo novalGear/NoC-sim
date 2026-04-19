@@ -17,6 +17,9 @@
 #include <cassert>
 #include <memory>
 
+constexpr size_t MAX_PORTS = 64;
+using PortMask = std::bitset<MAX_PORTS>;
+
 /**
  * @class Router
  * @brief Абстрактный базовый класс маршрутизатора с арбитражем Round-Robin.
@@ -53,6 +56,9 @@ protected:
 
     int in_port_count;   ///< Количество входных портов (кэшировано для производительности)
     int out_port_count;  ///< Количество выходных портов (кэшировано для производительности)
+
+    PortMask in_ports_mask;    ///< Маска существования входных портов
+    PortMask out_ports_mask;   ///< Маска существования выходных портов
 
     RRArbiter arbiter;   ///< Арбитр для разрешения конфликтов на выходных портах
 
@@ -166,10 +172,10 @@ public:
                 int out_idx = route_pkt(pkt_opt.value());
                 DEBUG_PRINT("Router " << id << ": packet from in_port[" << in_idx
                        << "] -> out_port[" << out_idx << "] (dst=" << pkt_opt->dst << ")");
-                assert(out_idx >= 0 && out_idx < out_port_count &&
-                       "Route function returned invalid port index");
 
                 // Добавляем запрос от этого входного порта
+                assert(has_out_port(out_idx) &&
+                    "Route function returned invalid port index");
                 requests[out_idx].emplace_back(in_idx);
             }
         }
@@ -230,11 +236,14 @@ public:
         assert(senders_list.size() == static_cast<size_t>(out_port_count));
 
         for (int out_idx = 0; out_idx < out_port_count; ++out_idx) {
-            if (output_ports[out_idx] == nullptr) {
-                DEBUG_PRINT("ERROR: output_ports[" << out_idx << "] is nullptr!");
+            int in_idx = senders_list[out_idx];
+
+            if (not has_out_port(out_idx)) {
+                if (in_idx != -1) {
+                    DEBUG_PRINT("ERROR: Trying to send pkt from in_port[" << in_idx << "] to an empty out_port[" << out_idx << "]!");
+                }
                 continue;
             }
-            int in_idx = senders_list[out_idx];
 
             // Если есть победитель и выходной порт готов принять пакет
             if (in_idx != -1 && output_ports[out_idx]->is_ready()) {
@@ -250,6 +259,51 @@ public:
                 assert(sent && "Output port should be ready (checked with isReady)");
             }
             // Если выход занят, пакет остается во входном порту (backpressure)
+        }
+    }
+    /**
+     * @brief Проверить наличие входного порта по индексу.
+     * @param[in] idx индекс входного порта
+     * @return true если порт существует
+     */
+    [[nodiscard]] inline bool has_in_port(int idx) const {
+        assert(0 <= idx && idx < in_port_count);
+        return in_ports_mask.test(idx);
+    }
+
+    /**
+     * @brief Проверить наличие выходного порта по индексу.
+     * @param[in] idx индекс выходного порта
+     * @return true если порт существует
+     */
+    [[nodiscard]] inline bool has_out_port(int idx) const {
+        assert(0 <= idx && idx < out_port_count);
+        return out_ports_mask.test(idx);
+    }
+
+    /**
+     * @brief Выставить бит наличия входного порта .
+     * @param[in] idx индекс входного порта
+     * @param[in] exists существует/пустой
+     * @see in_ports_mask
+     */
+    void set_in_port_exists(int idx, bool exists = true) {
+        assert(idx >= 0 && idx < in_port_count);
+        if (idx >= 0 && idx < in_port_count) {
+            in_ports_mask.set(idx, exists);
+        }
+    }
+
+    /**
+     * @brief Выставить бит наличия выходного порта .
+     * @param[in] idx индекс выходного порта
+     * @param[in] exists существует/пустой
+     * @see out_ports_mask
+     */
+    void set_out_port_exists(int idx, bool exists = true) {
+        assert(idx >= 0 && idx < out_port_count);
+        if (idx >= 0 && idx < out_port_count) {
+            out_ports_mask.set(idx, exists);
         }
     }
 

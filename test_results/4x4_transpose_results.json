@@ -1,0 +1,105 @@
+{
+    "average_hops": 0.0,
+    "average_latency": 3.0,
+    "delivered": 12,
+    "lost": 0,
+    "nodes": [
+        {
+            "node_id": 0,
+            "received": 0,
+            "send_failures": 0,
+            "sent": 0
+        },
+        {
+            "node_id": 1,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 2,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 3,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 4,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 5,
+            "received": 0,
+            "send_failures": 0,
+            "sent": 0
+        },
+        {
+            "node_id": 6,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 7,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 8,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 9,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 10,
+            "received": 0,
+            "send_failures": 0,
+            "sent": 0
+        },
+        {
+            "node_id": 11,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 12,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 13,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 14,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 1
+        },
+        {
+            "node_id": 15,
+            "received": 0,
+            "send_failures": 0,
+            "sent": 0
+        }
+    ],
+    "total_packets": 12
+}

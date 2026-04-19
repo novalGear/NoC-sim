@@ -1,0 +1,23 @@
+# src/interconnect/network/CMakeLists.txt
+
+set(NETWORK_SOURCES
+    packet_trace.cpp
+    network_node.cpp
+    simulation_controller.cpp
+)
+
+add_library(network_lib STATIC ${NETWORK_SOURCES})
+
+target_include_directories(network_lib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/..
+    ${CMAKE_CURRENT_SOURCE_DIR}/../core
+    ${CMAKE_CURRENT_SOURCE_DIR}/../mesh
+)
+
+target_link_libraries(network_lib PUBLIC
+    mesh_lib
+    nlohmann_json::nlohmann_json
+)
+
+target_compile_features(network_lib PUBLIC cxx_std_17)

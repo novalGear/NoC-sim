@@ -68,7 +68,7 @@ void MeshRouter::register_in_port(MeshDirection dir, Port* port) {
     assert(idx < input_ports.size() && "Index out of boundaries");
 
     input_ports[idx] = port;
-    in_ports_mask.set(idx);
+    set_in_port_exists(idx);
 }
 
 void MeshRouter::register_out_port(MeshDirection dir, Port* port) {
@@ -79,7 +79,7 @@ void MeshRouter::register_out_port(MeshDirection dir, Port* port) {
     assert(idx < output_ports.size() && "Index out of boundaries");
 
     output_ports[idx] = port;
-    out_ports_mask.set(idx);
+    set_out_port_exists(idx);
 }
 
 bool MeshRouter::inject_packet(const Packet& pkt) {
