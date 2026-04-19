@@ -251,6 +251,7 @@ public:
                 // Пытаемся извлечь пакет из входного порта победителя
                 auto pkt_opt = input_ports[in_idx]->try_recv();
                 assert(pkt_opt.has_value() && "Winner should have a packet");
+                pkt_opt->hops++;
 
                 // Отправляем пакет в выходной порт
                 bool sent = output_ports[out_idx]->try_send(pkt_opt.value());
@@ -261,6 +262,7 @@ public:
             // Если выход занят, пакет остается во входном порту (backpressure)
         }
     }
+
     /**
      * @brief Проверить наличие входного порта по индексу.
      * @param[in] idx индекс входного порта

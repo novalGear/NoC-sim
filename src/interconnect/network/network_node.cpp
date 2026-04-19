@@ -22,7 +22,7 @@ void NetworkNode::collect_my_packets() {
 }
 
 void NetworkNode::on_clock(int current_tick) {
-    // Отправка
+    // Отправка (без изменений)
     while (next_packet_idx_ < my_packet_indices_.size()) {
         int pkt_idx = my_packet_indices_[next_packet_idx_];
         const Packet& pkt = trace_.packets()[pkt_idx];
@@ -33,6 +33,8 @@ void NetworkNode::on_clock(int current_tick) {
             trace_.mark_injected(pkt_idx, current_tick);
             stats_.packets_sent++;
             next_packet_idx_++;
+            DEBUG_PRINT("Node " << node_id_ << ": injected packet " << pkt.id
+                       << " with hops=" << pkt.hops);
         } else {
             stats_.send_failures++;
             break;
@@ -43,7 +45,10 @@ void NetworkNode::on_clock(int current_tick) {
     while (auto pkt = interconnect_.eject_packet(node_id_)) {
         int pkt_idx = trace_.find_packet_by_id(pkt->id);
         if (pkt_idx != -1) {
-            trace_.mark_delivered(pkt_idx, current_tick);
+            // ОТЛАДКА: выводим hops при получении
+            DEBUG_PRINT("Node " << node_id_ << ": received packet " << pkt->id
+                       << " with hops=" << pkt->hops);
+            trace_.mark_delivered(pkt_idx, current_tick, pkt->hops);
             stats_.packets_received++;
         }
         recv_queue_.push(*pkt);

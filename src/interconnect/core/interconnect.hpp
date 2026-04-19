@@ -67,6 +67,9 @@ protected:
      */
     std::vector<std::unique_ptr<RouterType>> routers_;
 
+    /// Все порты сети (владение)
+    std::vector<std::unique_ptr<Port>> all_ports_;
+
     /**
      * @brief Защищенный конструктор для инициализации общих полей.
      * @param[in] nodes Общее количество узлов.

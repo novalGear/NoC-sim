@@ -1,8 +1,8 @@
 /**
  * @file port.hpp
- * @brief Порт интерконнекта — базовый элемент хранения пакета с сигналом валидности.
+ * @brief Порт интерконнекта с задержкой на один такт.
  * @author Novoselov Alexander
- * @date 14/03/2026
+ * @date 19/04/2026
  */
 
 #pragma once
@@ -12,71 +12,82 @@
 
 /**
  * @class Port
- * @brief Представляет аппаратный порт с буфером на один пакет.
+ * @brief Представляет аппаратный порт с задержкой на один такт.
  *
  * Порт моделирует цикл-точное поведение аппаратного буфера:
- * - Хранит не более одного пакета (флит-уровень)
+ * - Пакет, записанный в такте T, становится доступным для чтения в такте T+1
  * - Реализует сигналы valid/ready для backpressure
  */
 class Port {
 private:
-    /** @brief Внутренний буфер пакета. Пустой = порт свободен. */
-    std::optional<Packet> buffer;
+    /** @brief Пакет, который будет прочитан в следующем такте */
+    std::optional<Packet> recv_buffer;
 
-    /** @brief Очищает буфер порта (устанавливает valid = false). */
-    void clr_buffer() {
-        buffer.reset();
-    }
+    /** @brief Пакет, записанный в текущем такте */
+    std::optional<Packet> send_buffer;
 
 public:
     /**
-     * @brief Проверяет наличие данных в порту (сигнал valid).
-     * @return true если буфер содержит пакет, false если пуст.
+     * @brief Такт порта — перекладывает send_buffer в recv_buffer.
+     * Должен вызываться после того, как все роутеры завершили send_all.
      */
-    [[nodiscard]] bool has_data() const {
-        return buffer.has_value();
+    void on_clock() {
+        // Перемещаем send_buffer в recv_buffer ТОЛЬКО если recv_buffer пуст
+        if (!has_data() && send_buffer.has_value()) {
+            recv_buffer = std::move(send_buffer);
+            send_buffer.reset();
+        }
     }
 
     /**
-     * @brief Проверяет готовность порта к приему нового пакета (сигнал ready).
-     * @return true если буфер пуст и порт готов принять данные.
+     * @brief Проверяет наличие данных для чтения.
+     * @return true если recv_buffer содержит пакет.
+     */
+    [[nodiscard]] bool has_data() const {
+        return recv_buffer.has_value();
+    }
+
+    /**
+     * @brief Проверяет готовность к приему нового пакета.
+     * @return true если send_buffer пуст.
      */
     [[nodiscard]] bool is_ready() const {
-        return !buffer.has_value();
+        return !send_buffer.has_value();
     }
 
     /**
      * @brief Попытка отправить пакет в порт.
-     * @param[in] pkt Ссылка на пакет для отправки (копируется в буфер).
-     * @return true если отправка успешна, false если порт занят (backpressure).
+     * @param[in] pkt Пакет для отправки.
+     * @return true если отправка успешна (send_buffer был пуст).
+     * @note Пакет станет доступен для чтения на следующем такте.
      */
     [[nodiscard]] bool try_send(const Packet& pkt) {
         if (is_ready()) {
-            buffer = pkt;
+            send_buffer = pkt;
             return true;
         }
         return false;
     }
 
     /**
-     * @brief Забирает пакет из порта (потребляет данные).
-     * @return std::optional<Packet> с пакетом если данные были, или nullopt если порт пуст.
+     * @brief Забирает пакет из порта.
+     * @return Пакет, если recv_buffer не пуст.
+     * @note Читает пакет, записанный в предыдущем такте.
      */
     [[nodiscard]] std::optional<Packet> try_recv() {
         if (has_data()) {
-            Packet pkt = buffer.value();
-            clr_buffer();
+            Packet pkt = recv_buffer.value();
+            recv_buffer.reset();
             return pkt;
         }
         return std::nullopt;
     }
 
     /**
-     * @brief Просмотр пакета без извлечения (недеструктивное чтение).
-     * @return std::optional<Packet> с пакетом если данные есть, или nullopt.
-     * @see tryRecv(), hasData()
+     * @brief Просмотр пакета без извлечения.
+     * @return Пакет из recv_buffer, если есть.
      */
     [[nodiscard]] std::optional<Packet> peek() const {
-        return buffer;
+        return recv_buffer;
     }
 };

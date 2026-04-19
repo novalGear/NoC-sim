@@ -284,9 +284,10 @@ void PacketTrace::mark_injected(int packet_idx, int tick) {
     }
 }
 
-void PacketTrace::mark_delivered(int packet_idx, int tick) {
+void PacketTrace::mark_delivered(int packet_idx, int tick, int hops) {
     if (packet_idx >= 0 && packet_idx < static_cast<int>(packets_.size())) {
         packets_[packet_idx].recv_tick = tick;
+        packets_[packet_idx].hops = hops;
         delivered_[packet_idx] = true;
     }
 }

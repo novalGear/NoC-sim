@@ -36,11 +36,6 @@ private:
     int width_;   ///< Ширина сетки (количество столбцов)
     int height_;  ///< Высота сетки (количество строк)
     int total_nodes_;
-    /// Все роутеры сети (владение)
-    // std::vector<std::unique_ptr<MeshRouter>> routers_;
-
-    /// Все порты сети (владение)
-    std::vector<std::unique_ptr<Port>> all_ports_;
 
     /**
      * @brief Получить MeshRouter по координатам.
@@ -130,11 +125,18 @@ public:
 
     /**
      * @brief Выполнить один такт симуляции.
-     * @details Вызывает on_clock() для всех роутеров в сетке.
+     * @details
+     * Фаза 1: тактирование всех роутеров,
+     * чтение из портов, арбитраж, т.д.
+     * Фаза 2: порты перемещают пакеты из send_buffer в receive_buffer
      */
     void on_clock() override {
         for (auto& router : routers_) {
             router->on_clock();
+        }
+
+        for (auto& port : all_ports_) {
+            port->on_clock();
         }
     }
 

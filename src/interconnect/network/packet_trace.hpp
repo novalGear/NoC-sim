@@ -58,7 +58,7 @@ public:
 
     // Обновление состояния
     void mark_injected(int packet_idx, int tick);
-    void mark_delivered(int packet_idx, int tick);
+    void mark_delivered(int packet_idx, int tick, int hops);
     void increment_hops(int packet_idx);
 
     // Статистика
