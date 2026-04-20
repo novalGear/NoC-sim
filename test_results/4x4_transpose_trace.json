@@ -6,108 +6,108 @@
     "packets": [
         {
             "dst": 4,
-            "hops": 0,
+            "hops": 3,
             "id": 0,
-            "recv_tick": 2,
+            "recv_tick": 4,
             "send_tick": 0,
             "size": 1,
             "src": 1
         },
         {
             "dst": 8,
-            "hops": 0,
+            "hops": 5,
             "id": 1,
-            "recv_tick": 3,
+            "recv_tick": 6,
             "send_tick": 0,
             "size": 1,
             "src": 2
         },
         {
             "dst": 12,
-            "hops": 0,
+            "hops": 7,
             "id": 2,
-            "recv_tick": 4,
+            "recv_tick": 8,
             "send_tick": 0,
             "size": 1,
             "src": 3
         },
         {
             "dst": 1,
-            "hops": 0,
+            "hops": 3,
             "id": 3,
-            "recv_tick": 2,
+            "recv_tick": 4,
             "send_tick": 0,
             "size": 1,
             "src": 4
         },
         {
             "dst": 9,
-            "hops": 0,
+            "hops": 3,
             "id": 4,
-            "recv_tick": 2,
+            "recv_tick": 4,
             "send_tick": 0,
             "size": 1,
             "src": 6
         },
         {
             "dst": 13,
-            "hops": 0,
+            "hops": 5,
             "id": 5,
-            "recv_tick": 3,
+            "recv_tick": 6,
             "send_tick": 0,
             "size": 1,
             "src": 7
         },
         {
             "dst": 2,
-            "hops": 0,
+            "hops": 5,
             "id": 6,
-            "recv_tick": 3,
+            "recv_tick": 6,
             "send_tick": 0,
             "size": 1,
             "src": 8
         },
         {
             "dst": 6,
-            "hops": 0,
+            "hops": 3,
             "id": 7,
-            "recv_tick": 3,
+            "recv_tick": 4,
             "send_tick": 0,
             "size": 1,
             "src": 9
         },
         {
             "dst": 14,
-            "hops": 0,
+            "hops": 3,
             "id": 8,
-            "recv_tick": 2,
+            "recv_tick": 4,
             "send_tick": 0,
             "size": 1,
             "src": 11
         },
         {
             "dst": 3,
-            "hops": 0,
+            "hops": 7,
             "id": 9,
-            "recv_tick": 4,
+            "recv_tick": 8,
             "send_tick": 0,
             "size": 1,
             "src": 12
         },
         {
             "dst": 7,
-            "hops": 0,
+            "hops": 5,
             "id": 10,
-            "recv_tick": 5,
+            "recv_tick": 6,
             "send_tick": 0,
             "size": 1,
             "src": 13
         },
         {
             "dst": 11,
-            "hops": 0,
+            "hops": 3,
             "id": 11,
-            "recv_tick": 3,
+            "recv_tick": 4,
             "send_tick": 0,
             "size": 1,
             "src": 14

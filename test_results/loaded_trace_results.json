@@ -1,62 +1,62 @@
 {
-    "average_hops": 0.0,
-    "average_latency": 1.8666666666666667,
+    "average_hops": 3.1,
+    "average_latency": 4.233333333333333,
     "delivered": 30,
     "lost": 0,
     "nodes": [
         {
             "node_id": 0,
-            "received": 2,
-            "send_failures": 0,
-            "sent": 4
+            "received": 7,
+            "send_failures": 1,
+            "sent": 3
         },
         {
             "node_id": 1,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 2
+        },
+        {
+            "node_id": 2,
+            "received": 1,
+            "send_failures": 0,
+            "sent": 3
+        },
+        {
+            "node_id": 3,
+            "received": 2,
+            "send_failures": 0,
+            "sent": 0
+        },
+        {
+            "node_id": 4,
             "received": 3,
             "send_failures": 0,
             "sent": 3
         },
         {
-            "node_id": 2,
-            "received": 3,
-            "send_failures": 0,
-            "sent": 4
-        },
-        {
-            "node_id": 3,
-            "received": 3,
-            "send_failures": 0,
-            "sent": 4
-        },
-        {
-            "node_id": 4,
-            "received": 4,
-            "send_failures": 0,
-            "sent": 4
-        },
-        {
             "node_id": 5,
-            "received": 3,
+            "received": 6,
+            "send_failures": 0,
+            "sent": 3
+        },
+        {
+            "node_id": 6,
+            "received": 4,
             "send_failures": 0,
             "sent": 5
         },
         {
-            "node_id": 6,
-            "received": 3,
-            "send_failures": 0,
-            "sent": 4
-        },
-        {
             "node_id": 7,
-            "received": 6,
-            "send_failures": 0,
-            "sent": 2
+            "received": 5,
+            "send_failures": 2,
+            "sent": 6
         },
         {
             "node_id": 8,
-            "received": 3,
-            "send_failures": 0,
-            "sent": 0
+            "received": 1,
+            "send_failures": 1,
+            "sent": 5
         }
     ],
     "total_packets": 30

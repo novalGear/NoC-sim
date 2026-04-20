@@ -1,6 +1,6 @@
 {
-    "average_hops": 0.0,
-    "average_latency": 3.0,
+    "average_hops": 4.333333333333333,
+    "average_latency": 5.333333333333333,
     "delivered": 12,
     "lost": 0,
     "nodes": [

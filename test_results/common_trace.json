@@ -1,11 +1,11 @@
 {
     "metadata": {
-        "max_tick": 63,
+        "max_tick": 37,
         "total_packets": 50
     },
     "packets": [
         {
-            "dst": 2,
+            "dst": 5,
             "hops": 0,
             "id": 0,
             "recv_tick": -1,
@@ -14,40 +14,40 @@
             "src": 3
         },
         {
-            "dst": 0,
+            "dst": 6,
             "hops": 0,
             "id": 1,
             "recv_tick": -1,
             "send_tick": 0,
             "size": 1,
-            "src": 4
+            "src": 7
         },
         {
-            "dst": 15,
+            "dst": 12,
             "hops": 0,
             "id": 2,
             "recv_tick": -1,
             "send_tick": 0,
             "size": 1,
-            "src": 3
+            "src": 2
         },
         {
-            "dst": 9,
+            "dst": 14,
             "hops": 0,
             "id": 3,
             "recv_tick": -1,
             "send_tick": 0,
             "size": 1,
-            "src": 4
+            "src": 15
         },
         {
-            "dst": 3,
+            "dst": 4,
             "hops": 0,
             "id": 4,
             "recv_tick": -1,
             "send_tick": 0,
             "size": 1,
-            "src": 2
+            "src": 3
         },
         {
             "dst": 15,
@@ -56,34 +56,34 @@
             "recv_tick": -1,
             "send_tick": 0,
             "size": 1,
-            "src": 12
+            "src": 14
         },
         {
-            "dst": 7,
+            "dst": 5,
             "hops": 0,
             "id": 6,
             "recv_tick": -1,
-            "send_tick": 0,
+            "send_tick": 1,
             "size": 1,
-            "src": 1
+            "src": 7
         },
         {
-            "dst": 1,
+            "dst": 12,
             "hops": 0,
             "id": 7,
             "recv_tick": -1,
             "send_tick": 1,
             "size": 1,
-            "src": 11
+            "src": 7
         },
         {
-            "dst": 11,
+            "dst": 15,
             "hops": 0,
             "id": 8,
             "recv_tick": -1,
-            "send_tick": 1,
+            "send_tick": 2,
             "size": 1,
-            "src": 12
+            "src": 14
         },
         {
             "dst": 4,
@@ -92,367 +92,367 @@
             "recv_tick": -1,
             "send_tick": 2,
             "size": 1,
-            "src": 3
+            "src": 9
         },
         {
-            "dst": 6,
+            "dst": 11,
             "hops": 0,
             "id": 10,
             "recv_tick": -1,
             "send_tick": 2,
             "size": 1,
-            "src": 4
+            "src": 6
         },
         {
-            "dst": 9,
+            "dst": 3,
             "hops": 0,
             "id": 11,
+            "recv_tick": -1,
+            "send_tick": 2,
+            "size": 1,
+            "src": 2
+        },
+        {
+            "dst": 13,
+            "hops": 0,
+            "id": 12,
             "recv_tick": -1,
             "send_tick": 2,
             "size": 1,
             "src": 14
         },
         {
-            "dst": 12,
+            "dst": 6,
             "hops": 0,
-            "id": 12,
+            "id": 13,
             "recv_tick": -1,
             "send_tick": 2,
+            "size": 1,
+            "src": 1
+        },
+        {
+            "dst": 12,
+            "hops": 0,
+            "id": 14,
+            "recv_tick": -1,
+            "send_tick": 3,
             "size": 1,
             "src": 8
         },
         {
-            "dst": 8,
+            "dst": 2,
             "hops": 0,
-            "id": 13,
-            "recv_tick": -1,
-            "send_tick": 3,
-            "size": 1,
-            "src": 13
-        },
-        {
-            "dst": 4,
-            "hops": 0,
-            "id": 14,
+            "id": 15,
             "recv_tick": -1,
             "send_tick": 3,
             "size": 1,
             "src": 10
         },
         {
-            "dst": 15,
-            "hops": 0,
-            "id": 15,
-            "recv_tick": -1,
-            "send_tick": 3,
-            "size": 1,
-            "src": 14
-        },
-        {
-            "dst": 15,
+            "dst": 0,
             "hops": 0,
             "id": 16,
             "recv_tick": -1,
             "send_tick": 3,
             "size": 1,
-            "src": 3
+            "src": 9
         },
         {
-            "dst": 9,
+            "dst": 12,
             "hops": 0,
             "id": 17,
             "recv_tick": -1,
-            "send_tick": 4,
+            "send_tick": 3,
             "size": 1,
-            "src": 13
+            "src": 9
         },
         {
-            "dst": 6,
+            "dst": 11,
             "hops": 0,
             "id": 18,
             "recv_tick": -1,
-            "send_tick": 4,
+            "send_tick": 3,
             "size": 1,
-            "src": 7
+            "src": 1
         },
         {
-            "dst": 6,
+            "dst": 15,
             "hops": 0,
             "id": 19,
             "recv_tick": -1,
-            "send_tick": 5,
+            "send_tick": 3,
+            "size": 1,
+            "src": 1
+        },
+        {
+            "dst": 1,
+            "hops": 0,
+            "id": 20,
+            "recv_tick": -1,
+            "send_tick": 3,
             "size": 1,
             "src": 0
         },
         {
-            "dst": 8,
+            "dst": 10,
             "hops": 0,
-            "id": 20,
+            "id": 21,
             "recv_tick": -1,
-            "send_tick": 6,
+            "send_tick": 4,
             "size": 1,
-            "src": 11
+            "src": 8
         },
         {
             "dst": 2,
             "hops": 0,
-            "id": 21,
+            "id": 22,
+            "recv_tick": -1,
+            "send_tick": 5,
+            "size": 1,
+            "src": 15
+        },
+        {
+            "dst": 7,
+            "hops": 0,
+            "id": 23,
+            "recv_tick": -1,
+            "send_tick": 5,
+            "size": 1,
+            "src": 10
+        },
+        {
+            "dst": 7,
+            "hops": 0,
+            "id": 24,
+            "recv_tick": -1,
+            "send_tick": 6,
+            "size": 1,
+            "src": 13
+        },
+        {
+            "dst": 8,
+            "hops": 0,
+            "id": 25,
             "recv_tick": -1,
             "send_tick": 6,
             "size": 1,
             "src": 4
         },
         {
-            "dst": 1,
-            "hops": 0,
-            "id": 22,
-            "recv_tick": -1,
-            "send_tick": 6,
-            "size": 1,
-            "src": 6
-        },
-        {
-            "dst": 4,
-            "hops": 0,
-            "id": 23,
-            "recv_tick": -1,
-            "send_tick": 6,
-            "size": 1,
-            "src": 2
-        },
-        {
-            "dst": 9,
-            "hops": 0,
-            "id": 24,
-            "recv_tick": -1,
-            "send_tick": 7,
-            "size": 1,
-            "src": 12
-        },
-        {
-            "dst": 1,
-            "hops": 0,
-            "id": 25,
-            "recv_tick": -1,
-            "send_tick": 8,
-            "size": 1,
-            "src": 9
-        },
-        {
-            "dst": 8,
+            "dst": 6,
             "hops": 0,
             "id": 26,
             "recv_tick": -1,
-            "send_tick": 8,
+            "send_tick": 6,
             "size": 1,
-            "src": 13
+            "src": 8
         },
         {
-            "dst": 8,
+            "dst": 2,
             "hops": 0,
             "id": 27,
             "recv_tick": -1,
-            "send_tick": 8,
-            "size": 1,
-            "src": 3
-        },
-        {
-            "dst": 8,
-            "hops": 0,
-            "id": 28,
-            "recv_tick": -1,
-            "send_tick": 8,
-            "size": 1,
-            "src": 12
-        },
-        {
-            "dst": 8,
-            "hops": 0,
-            "id": 29,
-            "recv_tick": -1,
-            "send_tick": 8,
+            "send_tick": 7,
             "size": 1,
             "src": 6
         },
         {
-            "dst": 13,
+            "dst": 6,
+            "hops": 0,
+            "id": 28,
+            "recv_tick": -1,
+            "send_tick": 7,
+            "size": 1,
+            "src": 1
+        },
+        {
+            "dst": 0,
+            "hops": 0,
+            "id": 29,
+            "recv_tick": -1,
+            "send_tick": 7,
+            "size": 1,
+            "src": 8
+        },
+        {
+            "dst": 5,
             "hops": 0,
             "id": 30,
             "recv_tick": -1,
             "send_tick": 8,
             "size": 1,
-            "src": 15
+            "src": 1
         },
         {
-            "dst": 8,
+            "dst": 3,
             "hops": 0,
             "id": 31,
             "recv_tick": -1,
-            "send_tick": 8,
+            "send_tick": 9,
             "size": 1,
-            "src": 0
+            "src": 4
         },
         {
             "dst": 5,
             "hops": 0,
             "id": 32,
             "recv_tick": -1,
-            "send_tick": 9,
+            "send_tick": 10,
             "size": 1,
-            "src": 6
+            "src": 7
         },
         {
-            "dst": 8,
+            "dst": 5,
             "hops": 0,
             "id": 33,
             "recv_tick": -1,
-            "send_tick": 9,
-            "size": 1,
-            "src": 13
-        },
-        {
-            "dst": 8,
-            "hops": 0,
-            "id": 34,
-            "recv_tick": -1,
-            "send_tick": 9,
-            "size": 1,
-            "src": 0
-        },
-        {
-            "dst": 15,
-            "hops": 0,
-            "id": 35,
-            "recv_tick": -1,
-            "send_tick": 10,
-            "size": 1,
-            "src": 13
-        },
-        {
-            "dst": 12,
-            "hops": 0,
-            "id": 36,
-            "recv_tick": -1,
-            "send_tick": 10,
-            "size": 1,
-            "src": 0
-        },
-        {
-            "dst": 6,
-            "hops": 0,
-            "id": 37,
-            "recv_tick": -1,
-            "send_tick": 10,
-            "size": 1,
-            "src": 2
-        },
-        {
-            "dst": 11,
-            "hops": 0,
-            "id": 38,
-            "recv_tick": -1,
-            "send_tick": 11,
-            "size": 1,
-            "src": 1
-        },
-        {
-            "dst": 2,
-            "hops": 0,
-            "id": 39,
-            "recv_tick": -1,
             "send_tick": 12,
             "size": 1,
-            "src": 15
+            "src": 10
         },
         {
             "dst": 9,
             "hops": 0,
-            "id": 40,
+            "id": 34,
+            "recv_tick": -1,
+            "send_tick": 12,
+            "size": 1,
+            "src": 6
+        },
+        {
+            "dst": 9,
+            "hops": 0,
+            "id": 35,
+            "recv_tick": -1,
+            "send_tick": 12,
+            "size": 1,
+            "src": 1
+        },
+        {
+            "dst": 6,
+            "hops": 0,
+            "id": 36,
             "recv_tick": -1,
             "send_tick": 13,
             "size": 1,
             "src": 2
         },
         {
-            "dst": 5,
+            "dst": 4,
+            "hops": 0,
+            "id": 37,
+            "recv_tick": -1,
+            "send_tick": 14,
+            "size": 1,
+            "src": 14
+        },
+        {
+            "dst": 6,
+            "hops": 0,
+            "id": 38,
+            "recv_tick": -1,
+            "send_tick": 15,
+            "size": 1,
+            "src": 7
+        },
+        {
+            "dst": 0,
+            "hops": 0,
+            "id": 39,
+            "recv_tick": -1,
+            "send_tick": 15,
+            "size": 1,
+            "src": 6
+        },
+        {
+            "dst": 3,
+            "hops": 0,
+            "id": 40,
+            "recv_tick": -1,
+            "send_tick": 16,
+            "size": 1,
+            "src": 1
+        },
+        {
+            "dst": 6,
             "hops": 0,
             "id": 41,
             "recv_tick": -1,
             "send_tick": 16,
             "size": 1,
-            "src": 9
-        },
-        {
-            "dst": 5,
-            "hops": 0,
-            "id": 42,
-            "recv_tick": -1,
-            "send_tick": 18,
-            "size": 1,
-            "src": 8
-        },
-        {
-            "dst": 6,
-            "hops": 0,
-            "id": 43,
-            "recv_tick": -1,
-            "send_tick": 18,
-            "size": 1,
-            "src": 12
-        },
-        {
-            "dst": 6,
-            "hops": 0,
-            "id": 44,
-            "recv_tick": -1,
-            "send_tick": 20,
-            "size": 1,
             "src": 2
         },
         {
-            "dst": 14,
+            "dst": 3,
             "hops": 0,
-            "id": 45,
+            "id": 42,
             "recv_tick": -1,
-            "send_tick": 20,
+            "send_tick": 17,
             "size": 1,
-            "src": 12
+            "src": 9
         },
         {
-            "dst": 1,
+            "dst": 7,
             "hops": 0,
-            "id": 46,
+            "id": 43,
             "recv_tick": -1,
-            "send_tick": 22,
-            "size": 1,
-            "src": 6
-        },
-        {
-            "dst": 6,
-            "hops": 0,
-            "id": 47,
-            "recv_tick": -1,
-            "send_tick": 26,
-            "size": 1,
-            "src": 13
-        },
-        {
-            "dst": 14,
-            "hops": 0,
-            "id": 48,
-            "recv_tick": -1,
-            "send_tick": 27,
+            "send_tick": 17,
             "size": 1,
             "src": 8
         },
         {
             "dst": 15,
             "hops": 0,
+            "id": 44,
+            "recv_tick": -1,
+            "send_tick": 19,
+            "size": 1,
+            "src": 6
+        },
+        {
+            "dst": 6,
+            "hops": 0,
+            "id": 45,
+            "recv_tick": -1,
+            "send_tick": 19,
+            "size": 1,
+            "src": 3
+        },
+        {
+            "dst": 1,
+            "hops": 0,
+            "id": 46,
+            "recv_tick": -1,
+            "send_tick": 27,
+            "size": 1,
+            "src": 5
+        },
+        {
+            "dst": 11,
+            "hops": 0,
+            "id": 47,
+            "recv_tick": -1,
+            "send_tick": 29,
+            "size": 1,
+            "src": 9
+        },
+        {
+            "dst": 5,
+            "hops": 0,
+            "id": 48,
+            "recv_tick": -1,
+            "send_tick": 34,
+            "size": 1,
+            "src": 1
+        },
+        {
+            "dst": 6,
+            "hops": 0,
             "id": 49,
             "recv_tick": -1,
-            "send_tick": 63,
+            "send_tick": 37,
             "size": 1,
-            "src": 8
+            "src": 1
         }
     ]
 }

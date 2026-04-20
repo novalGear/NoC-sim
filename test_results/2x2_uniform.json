@@ -1,32 +1,32 @@
 {
-    "average_hops": 0.0,
-    "average_latency": 2.12,
+    "average_hops": 2.3,
+    "average_latency": 4.32,
     "delivered": 50,
     "lost": 0,
     "nodes": [
         {
             "node_id": 0,
-            "received": 10,
-            "send_failures": 19,
-            "sent": 15
+            "received": 14,
+            "send_failures": 7,
+            "sent": 11
         },
         {
             "node_id": 1,
-            "received": 16,
-            "send_failures": 5,
-            "sent": 7
+            "received": 10,
+            "send_failures": 9,
+            "sent": 13
         },
         {
             "node_id": 2,
-            "received": 9,
-            "send_failures": 19,
-            "sent": 16
+            "received": 13,
+            "send_failures": 12,
+            "sent": 13
         },
         {
             "node_id": 3,
-            "received": 15,
-            "send_failures": 12,
-            "sent": 12
+            "received": 13,
+            "send_failures": 13,
+            "sent": 13
         }
     ],
     "total_packets": 50
