@@ -1,13 +1,13 @@
 package Interface.model;
 
-public enum RoutingType {
-    STATIC("STATIC"),
-    OBLIVIOUS("OBLIVIOUS"),
-    ADAPTIVE("ADAPTIVE");
+public enum TrafficPatternType {
+    UNIFORM("UNIFORM"),
+    HOTSPOT("HOTSPOT"),
+    SYNTHETIC("SYNTHETIC");
 
     private final String value;
 
-    RoutingType(String value) {
+    TrafficPatternType(String value) {
         this.value = value;
     }
 

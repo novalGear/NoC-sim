@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Опции сборки
-option(BUILD_JNI "Build JNI module" ON)  # Включаем по умолчанию
+option(BUILD_JNI "Build JNI module" ON)
 option(BUILD_TESTS "Build tests" ON)
 
 # Поиск зависимостей
@@ -35,7 +35,7 @@ set(JSON_JAR "${CMAKE_SOURCE_DIR}/lib/java/json-20231013.jar")
 set(OUTPUT_DIR "${CMAKE_BINARY_DIR}/output")
 set(CLASS_DIR "${OUTPUT_DIR}/classes")
 set(LIB_DIR "${OUTPUT_DIR}/lib")
-set(JNI_HDR_DIR "${CMAKE_SOURCE_DIR}/src/JNI")  # Папка для сгенерированных хедеров
+set(JNI_HDR_DIR "${CMAKE_SOURCE_DIR}/src/JNI")
 
 file(MAKE_DIRECTORY ${CLASS_DIR} ${LIB_DIR} ${JNI_HDR_DIR})
 
@@ -65,11 +65,79 @@ if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
+# =========================================================
+# Цель для запуска GUI
+# =========================================================
+
+if(BUILD_JNI)
+    # Основная цель запуска
+    add_custom_target(run
+        COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+        COMMAND ${CMAKE_COMMAND} -E echo "Starting Interconnect Simulator GUI..."
+        COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+        COMMAND ${CMAKE_COMMAND} -E echo "Java library path: ${NOC_SIM_LIB_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E echo "Classpath: ${NOC_SIM_CLASS_DIR}:${NOC_SIM_JSON_JAR}"
+        COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+        COMMAND ${Java_JAVA_EXECUTABLE}
+            -Djava.library.path=${NOC_SIM_LIB_DIR}
+            -cp "${NOC_SIM_CLASS_DIR}:${NOC_SIM_JSON_JAR}"
+            Interface.InterconnectApp
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Running Interconnect Simulator GUI"
+        DEPENDS JNIdll
+        VERBATIM
+    )
+
+    # Цель для запуска с отладкой JNI
+    add_custom_target(debug
+        COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+        COMMAND ${CMAKE_COMMAND} -E echo "Starting in DEBUG mode with JNI checks..."
+        COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+        COMMAND ${Java_JAVA_EXECUTABLE}
+            -Djava.library.path=${NOC_SIM_LIB_DIR}
+            -Xcheck:jni
+            -cp "${NOC_SIM_CLASS_DIR}:${NOC_SIM_JSON_JAR}"
+            Interface.InterconnectApp
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Running GUI with JNI debugging"
+        DEPENDS JNIdll
+        VERBATIM
+    )
+
+    # Цель для запуска с отладочным выводом C++
+    add_custom_target(run-verbose
+        COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+        COMMAND ${CMAKE_COMMAND} -E echo "Starting with verbose C++ output..."
+        COMMAND ${CMAKE_COMMAND} -E echo "========================================="
+        COMMAND ${Java_JAVA_EXECUTABLE}
+            -Djava.library.path=${NOC_SIM_LIB_DIR}
+            -Dcpp.verbose=true
+            -cp "${NOC_SIM_CLASS_DIR}:${NOC_SIM_JSON_JAR}"
+            Interface.InterconnectApp
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Running GUI with verbose C++ output"
+        DEPENDS JNIdll
+        VERBATIM
+    )
+
+    message(STATUS "")
+    message(STATUS "========================================")
+    message(STATUS "Available run targets:")
+    message(STATUS "  make run         - Start GUI normally")
+    message(STATUS "  make debug       - Start GUI with JNI checks")
+    message(STATUS "  make run-verbose - Start GUI with verbose C++ output")
+    message(STATUS "========================================")
+endif()
+
+# =========================================================
 # Информация о сборке
+# =========================================================
+
+message(STATUS "")
 message(STATUS "========================================")
 message(STATUS "Build Configuration:")
 message(STATUS "  BUILD_JNI: ${BUILD_JNI}")
 message(STATUS "  BUILD_TESTS: ${BUILD_TESTS}")
 message(STATUS "  Output directory: ${OUTPUT_DIR}")
-message(STATUS "  JNI headers will be generated in: ${JNI_HDR_DIR}")
+message(STATUS "  JNI headers: ${JNI_HDR_DIR}")
 message(STATUS "========================================")

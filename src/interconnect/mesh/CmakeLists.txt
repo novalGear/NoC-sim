@@ -16,6 +16,12 @@ target_include_directories(mesh_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/..  # Для #include "../core/router.hpp" и т.д.
 )
 
+set_target_properties(mesh_lib PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+)
+
 # Указываем зависимости
 target_link_libraries(mesh_lib PUBLIC
     interconnect_core  # Зависимость от core библиотеки

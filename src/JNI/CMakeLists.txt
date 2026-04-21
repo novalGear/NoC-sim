@@ -36,10 +36,12 @@ if(BUILD_JNI)
         COMMENT "Generating JNI headers"
     )
 
-    # 4. Исходники C++
+    # 4. Исходники C++ (обновлено с новыми файлами)
     set(JNI_SOURCES
         jni_wrapper.cpp
-        # Добавь другие C++ файлы если нужно
+        json_utils.cpp
+        config_validator.cpp
+        simulation_runner.cpp
     )
 
     # 5. Создание shared library
@@ -48,17 +50,23 @@ if(BUILD_JNI)
     # 6. Include директории
     target_include_directories(JNIdll
         PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}
-            ${NOC_SIM_JNI_HDR_DIR}                 # Для сгенерированного хедера
-            ${NOC_SIM_JNI_INCLUDES}                # JNI системные хедеры
+            ${CMAKE_CURRENT_SOURCE_DIR}                # Для logger.hpp и др.
+            ${CMAKE_SOURCE_DIR}/src/interconnect       # Для mesh.hpp, packet.hpp и др.
+            ${CMAKE_SOURCE_DIR}/src/interconnect/mesh
+            ${CMAKE_SOURCE_DIR}/src/interconnect/network
+            ${CMAKE_SOURCE_DIR}/src/interconnect/core
+            ${NOC_SIM_JNI_HDR_DIR}                     # Для сгенерированного хедера
+            ${NOC_SIM_JNI_INCLUDES}                    # JNI системные хедеры
+            ${JNI_INCLUDE_DIRS}
     )
 
     # 7. Линковка с существующими библиотеками
     target_link_libraries(JNIdll
         PRIVATE
             ${NOC_SIM_JVM_LIBRARY}
-            mesh_lib          # Линкуем с mesh библиотекой
-            network_lib       # Линкуем с network библиотекой
+            mesh_lib                                   # mesh библиотека
+            network_lib                                # network библиотека
+            nlohmann_json::nlohmann_json               # JSON библиотека
     )
 
     # 8. Свойства библиотеки
@@ -67,11 +75,13 @@ if(BUILD_JNI)
         OUTPUT_NAME "JNIdll"
         LIBRARY_OUTPUT_DIRECTORY ${NOC_SIM_LIB_DIR}
         POSITION_INDEPENDENT_CODE ON
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
     )
 
     # 9. Зависимости
     add_dependencies(JNIdll generate_jni_header)
-    add_dependencies(JNIdll mesh_lib network_lib)  # Ждём сборки core библиотек
+    add_dependencies(JNIdll mesh_lib network_lib)
 
     # 10. Копирование JSON JAR в output
     add_custom_command(TARGET JNIdll POST_BUILD
@@ -81,10 +91,16 @@ if(BUILD_JNI)
         COMMENT "Copying JSON JAR to output directory"
     )
 
+    # 11. Дополнительный вывод информации
+    message(STATUS "========================================")
     message(STATUS "JNI Module configured:")
+    message(STATUS "  Java source dir: ${JAVA_SRC_DIR}")
     message(STATUS "  Java sources: ${JAVA_SOURCES}")
+    message(STATUS "  C++ sources: ${JNI_SOURCES}")
     message(STATUS "  Generated header: ${GENERATED_JNI_HEADER}")
     message(STATUS "  Output library: ${NOC_SIM_LIB_DIR}/libJNIdll.so")
+    message(STATUS "  JNI include dirs: ${NOC_SIM_JNI_INCLUDES}")
+    message(STATUS "========================================")
 else()
     message(STATUS "JNI module disabled (BUILD_JNI=OFF)")
 endif()

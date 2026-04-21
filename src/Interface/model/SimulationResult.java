@@ -12,9 +12,16 @@ public class SimulationResult {
     private long executionTimeMs;
     private String errorMessage;
 
+    private double averageHops;
+    private double deliveryRate;
+    private int totalPackets;
+
     public SimulationResult() {
         this.success = false;
         this.errorMessage = "";
+        this.averageHops = 0.0;
+        this.deliveryRate = 0.0;
+        this.totalPackets = 0;
     }
 
     // Геттеры
@@ -28,6 +35,9 @@ public class SimulationResult {
     public long getCyclesElapsed() { return cyclesElapsed; }
     public long getExecutionTimeMs() { return executionTimeMs; }
     public String getErrorMessage() { return errorMessage; }
+    public double getAverageHops() { return averageHops; }
+    public double getDeliveryRate() { return deliveryRate; }
+    public int getTotalPackets() { return totalPackets; }
 
     // Сеттеры
     public void setSuccess(boolean success) { this.success = success; }
@@ -40,14 +50,12 @@ public class SimulationResult {
     public void setCyclesElapsed(long cyclesElapsed) { this.cyclesElapsed = cyclesElapsed; }
     public void setExecutionTimeMs(long executionTimeMs) { this.executionTimeMs = executionTimeMs; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+    public void setAverageHops(double averageHops) { this.averageHops = averageHops; }
+    public void setDeliveryRate(double deliveryRate) { this.deliveryRate = deliveryRate; }
+    public void setTotalPackets(int totalPackets) { this.totalPackets = totalPackets; }
 
     public double getPacketLossRate() {
         if (packetsSent == 0) return 0.0;
         return (double) packetsLost / packetsSent * 100.0;
-    }
-
-    public double getDeliveryRate() {
-        if (packetsSent == 0) return 0.0;
-        return (double) packetsDelivered / packetsSent * 100.0;
     }
 }

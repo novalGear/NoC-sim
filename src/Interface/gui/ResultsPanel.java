@@ -63,7 +63,14 @@ public class ResultsPanel extends JPanel {
             }
             if (result.getThroughput() > 0) {
                 tableModel.addRow(new Object[]{"Throughput",
-                    String.format("%.2f pkts/cycle", result.getThroughput())});
+                    String.format("%.3f pkts/cycle", result.getThroughput())});
+            }
+            if (result.getAverageHops() > 0) {
+                tableModel.addRow(new Object[]{"Average Hops",
+                    String.format("%.2f", result.getAverageHops())});
+            }
+            if (result.getTotalPackets() > 0) {
+                tableModel.addRow(new Object[]{"Total Packets", result.getTotalPackets()});
             }
             if (result.getPacketsSent() > 0) {
                 tableModel.addRow(new Object[]{"Packets Sent", result.getPacketsSent()});
@@ -71,14 +78,17 @@ public class ResultsPanel extends JPanel {
             if (result.getPacketsDelivered() > 0) {
                 tableModel.addRow(new Object[]{"Packets Delivered", result.getPacketsDelivered()});
             }
-            if (result.getPacketsLost() > 0) {
+            if (result.getPacketsLost() >= 0) {
                 tableModel.addRow(new Object[]{"Packets Lost", result.getPacketsLost()});
+            }
+            if (result.getDeliveryRate() > 0) {
+                tableModel.addRow(new Object[]{"Delivery Rate",
+                    String.format("%.2f%%", result.getDeliveryRate() * 100)});
+            }
+            if (result.getPacketLossRate() > 0) {
                 tableModel.addRow(new Object[]{"Packet Loss Rate",
                     String.format("%.2f%%", result.getPacketLossRate())});
             }
-            tableModel.addRow(new Object[]{"Delivery Rate",
-                String.format("%.2f%%", result.getDeliveryRate())});
-
             if (result.getCyclesElapsed() > 0) {
                 tableModel.addRow(new Object[]{"Cycles Elapsed", result.getCyclesElapsed()});
             }
@@ -91,16 +101,18 @@ public class ResultsPanel extends JPanel {
             StringBuilder details = new StringBuilder();
             details.append("SIMULATION DETAILS\n");
             details.append("==================\n\n");
-            details.append(String.format("Total packets processed: %d\n", result.getPacketsSent()));
+            details.append(String.format("Topology: MESH %dx%d\n",
+                (int)Math.sqrt(result.getPacketsSent() / 10),
+                (int)Math.sqrt(result.getPacketsSent() / 10)));
+            details.append(String.format("Total packets: %d\n", result.getTotalPackets()));
             details.append(String.format("Successfully delivered: %d (%.1f%%)\n",
-                result.getPacketsDelivered(), result.getDeliveryRate()));
+                result.getPacketsDelivered(), result.getDeliveryRate() * 100));
             details.append(String.format("Lost in transit: %d (%.1f%%)\n",
                 result.getPacketsLost(), result.getPacketLossRate()));
-
-            if (result.getThroughput() > 0 && result.getCyclesElapsed() > 0) {
-                details.append(String.format("\nAverage throughput: %.2f packets/cycle\n",
-                    result.getThroughput()));
-            }
+            details.append(String.format("\nAverage latency: %.3f cycles\n", result.getLatencyAvg()));
+            details.append(String.format("Average hops: %.2f\n", result.getAverageHops()));
+            details.append(String.format("Throughput: %.3f packets/cycle\n", result.getThroughput()));
+            details.append(String.format("\nExecution time: %d ms\n", result.getExecutionTimeMs()));
 
             detailsArea.setText(details.toString());
         } else {

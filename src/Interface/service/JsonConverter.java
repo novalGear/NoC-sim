@@ -9,9 +9,13 @@ public class JsonConverter {
         JSONObject json = new JSONObject();
         json.put("topology", config.getTopology().getValue());
         json.put("routing", config.getRouting().getValue());
+        json.put("traffic", config.getTraffic().getValue());
         json.put("width", config.getWidth());
         json.put("height", config.getHeight());
         json.put("nodes", config.getNodes());
+        json.put("max_ticks", config.getMaxTicks());
+        json.put("total_packets", config.getTotalPackets());
+        json.put("injection_rate", config.getInjectionRate());
         return json.toString();
     }
 
@@ -22,14 +26,8 @@ public class JsonConverter {
         result.setSuccess(json.getBoolean("success"));
 
         if (result.isSuccess()) {
-            if (json.has("latency_avg")) {
-                result.setLatencyAvg(json.getDouble("latency_avg"));
-            }
-            if (json.has("latency_max")) {
-                result.setLatencyMax(json.getDouble("latency_max"));
-            }
-            if (json.has("throughput")) {
-                result.setThroughput(json.getDouble("throughput"));
+            if (json.has("total_packets")) {
+                result.setTotalPackets(json.getInt("total_packets"));
             }
             if (json.has("packets_sent")) {
                 result.setPacketsSent(json.getInt("packets_sent"));
@@ -39,6 +37,21 @@ public class JsonConverter {
             }
             if (json.has("packets_lost")) {
                 result.setPacketsLost(json.getInt("packets_lost"));
+            }
+            if (json.has("latency_avg")) {
+                result.setLatencyAvg(json.getDouble("latency_avg"));
+            }
+            if (json.has("latency_max")) {
+                result.setLatencyMax(json.getDouble("latency_max"));
+            }
+            if (json.has("average_hops")) {
+                result.setAverageHops(json.getDouble("average_hops"));
+            }
+            if (json.has("delivery_rate")) {
+                result.setDeliveryRate(json.getDouble("delivery_rate"));
+            }
+            if (json.has("throughput")) {
+                result.setThroughput(json.getDouble("throughput"));
             }
             if (json.has("cycles_elapsed")) {
                 result.setCyclesElapsed(json.getLong("cycles_elapsed"));
