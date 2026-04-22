@@ -1,0 +1,43 @@
+# =========================================================
+# Doxygen configuration for NoC Simulator JNI
+# =========================================================
+
+PROJECT_NAME           = "@DOXYGEN_PROJECT_NAME@"
+PROJECT_NUMBER         = "@DOXYGEN_PROJECT_VERSION@"
+PROJECT_BRIEF          = "Network-on-Chip simulator with Java GUI and C++ core"
+
+OUTPUT_DIRECTORY       = "@DOXYGEN_OUTPUT_DIR@"
+
+INPUT                  = "@DOXYGEN_INPUT_DIR@"
+
+RECURSIVE              = YES
+
+EXCLUDE                = @CMAKE_BINARY_DIR@
+
+FILE_PATTERNS          = *.java \
+                         *.cpp \
+                         *.hpp \
+                         *.h
+
+OPTIMIZE_OUTPUT_JAVA   = YES
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_TIMESTAMP         = YES
+GENERATE_TREEVIEW      = YES
+
+GENERATE_LATEX         = YES
+LATEX_OUTPUT           = latex
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = YES
+STRIP_CODE_COMMENTS    = NO
+
+MARKDOWN_SUPPORT       = YES
+
+WARN_NO_PARAMDOC       = YES
+WARN_IF_UNDOCUMENTED   = YES

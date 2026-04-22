@@ -130,6 +130,33 @@ if(BUILD_JNI)
 endif()
 
 # =========================================================
+# Doxygen Documentation
+# =========================================================
+
+find_package(Doxygen QUIET)
+
+if(DOXYGEN_FOUND)
+    # Настройка Doxyfile из шаблона
+    set(DOXYGEN_INPUT_DIR "${CMAKE_SOURCE_DIR}/src")
+    set(DOXYGEN_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/docs")
+    set(DOXYGEN_PROJECT_NAME "NoC Simulator JNI")
+    set(DOXYGEN_PROJECT_VERSION "1.0")
+
+    configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${CMAKE_BINARY_DIR}/Doxyfile @ONLY)
+
+    add_custom_target(docs
+        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM
+    )
+
+    message(STATUS "Doxygen found. Use 'make docs' to generate documentation.")
+else()
+    message(STATUS "Doxygen not found. Documentation generation disabled.")
+endif()
+
+# =========================================================
 # Информация о сборке
 # =========================================================
 
