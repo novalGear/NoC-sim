@@ -9,6 +9,7 @@ public class JsonConverter {
         JSONObject json = new JSONObject();
         json.put("topology", config.getTopology().getValue());
         json.put("routing", config.getRouting().getValue());
+        json.put("arbiter_type", config.getArbiterType().name());
         json.put("traffic", config.getTraffic().getValue());
         json.put("width", config.getWidth());
         json.put("height", config.getHeight());

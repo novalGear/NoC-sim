@@ -3,6 +3,7 @@ package Interface.model;
 public class SimulationConfig {
     private TopologyType topology;
     private RoutingType routing;
+    private ArbiterType arbiterType;
     private TrafficPatternType traffic;
     private int width;
     private int height;
@@ -14,6 +15,7 @@ public class SimulationConfig {
     public SimulationConfig() {
         this.topology = TopologyType.MESH;
         this.routing = RoutingType.STATIC;
+        this.arbiterType = ArbiterType.RR;
         this.traffic = TrafficPatternType.UNIFORM;
         this.width = 8;
         this.height = 8;
@@ -40,6 +42,7 @@ public class SimulationConfig {
     // Геттеры
     public TopologyType getTopology() { return topology; }
     public RoutingType getRouting() { return routing; }
+    public ArbiterType getArbiterType() { return arbiterType; }
     public TrafficPatternType getTraffic() { return traffic; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
@@ -51,6 +54,7 @@ public class SimulationConfig {
     // Сеттеры
     public void setTopology(TopologyType topology) { this.topology = topology; }
     public void setRouting(RoutingType routing) { this.routing = routing; }
+    public void setArbiterType(ArbiterType arbiterType) { this.arbiterType = arbiterType; }
     public void setTraffic(TrafficPatternType traffic) { this.traffic = traffic; }
     public void setWidth(int width) { this.width = width; }
     public void setHeight(int height) { this.height = height; }

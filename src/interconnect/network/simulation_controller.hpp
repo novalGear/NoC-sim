@@ -1,23 +1,23 @@
 /**
- * @file simulation_controller.hpp
- * @brief Контроллер симуляции NoC.
- * @author Novoselov Alexander
- * @date 14/04/2026
- */
-
+@file simulation_controller.hpp
+@brief Контроллер симуляции NoC.
+@author Novoselov Alexander
+@date 14/04/2026
+*/
 #pragma once
-
 #include "mesh.hpp"
 #include "packet_trace.hpp"
 #include "network_node.hpp"
 #include <memory>
 #include <vector>
+#include <string>
 
+template <typename ArbiterT = RRArbiter>
 class SimulationController {
 private:
-    std::unique_ptr<MeshInterconnect> interconnect_;
+    std::unique_ptr<MeshInterconnect<ArbiterT>> interconnect_;
     PacketTrace trace_;
-    std::vector<std::unique_ptr<NetworkNode>> nodes_;
+    std::vector<std::unique_ptr<NetworkNode<ArbiterT>>> nodes_;
     int current_tick_ = 0;
     bool is_built_ = false;
 
@@ -47,6 +47,8 @@ public:
     void save_results(const std::string& filename) const;
 
     // Геттеры
-    MeshInterconnect* get_interconnect() { return interconnect_.get(); }
+    MeshInterconnect<ArbiterT>* get_interconnect() { return interconnect_.get(); }
     const PacketTrace& get_trace() const { return trace_; }
 };
+
+#include "simulation_controller.tpp"

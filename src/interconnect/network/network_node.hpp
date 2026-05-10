@@ -1,23 +1,21 @@
 /**
- * @file network_node.hpp
- * @brief IP Core, подключенный к роутеру через LOCAL порт.
- * @author Novoselov Alexander
- * @date 14/04/2026
- */
-
+@file network_node.hpp
+@brief IP Core, подключенный к роутеру через LOCAL порт.
+@author Novoselov Alexander
+@date 14/04/2026
+*/
 #pragma once
-
 #include "packet_trace.hpp"
 #include "mesh.hpp"
+#include <vector>
 #include <queue>
-#include <optional>
 
+template <typename ArbiterT = RRArbiter>
 class NetworkNode {
 private:
     int node_id_;
-    MeshInterconnect& interconnect_;
+    MeshInterconnect<ArbiterT>& interconnect_;
     PacketTrace& trace_;
-
     std::vector<int> my_packet_indices_;
     size_t next_packet_idx_ = 0;
     std::queue<Packet> recv_queue_;
@@ -31,8 +29,7 @@ private:
     void collect_my_packets();
 
 public:
-    NetworkNode(int id, MeshInterconnect& interconnect, PacketTrace& trace);
-
+    NetworkNode(int id, MeshInterconnect<ArbiterT>& interconnect, PacketTrace& trace);
     void on_clock(int current_tick);
     bool has_pending_packets() const;
 
@@ -43,3 +40,5 @@ public:
 
     void print_stats() const;
 };
+
+#include "network_node.tpp"

@@ -17,6 +17,12 @@ public class SettingsPanel extends JPanel {
     private final JRadioButton obliviousRadio;
     private final JRadioButton adaptiveRadio;
 
+    // === Arbiter Selection ===
+    private final ButtonGroup arbiterGroup;
+    private final JRadioButton rrRadio;
+    private final JRadioButton priorityRadio;
+    private final JRadioButton lruRadio;
+
     // Traffic Pattern
     private final ButtonGroup trafficGroup;
     private final JRadioButton uniformRadio;
@@ -68,6 +74,23 @@ public class SettingsPanel extends JPanel {
         routingPanel.add(obliviousRadio);
         routingPanel.add(adaptiveRadio);
         routingPanel.add(new JLabel(" (only STATIC supported)"));
+
+        // ===== Arbiter Type =====
+        JPanel arbiterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        arbiterPanel.add(new JLabel("Arbiter: "));
+
+        rrRadio = new JRadioButton("Round-Robin", true);
+        priorityRadio = new JRadioButton("Priority");
+        lruRadio = new JRadioButton("LRU");
+
+        arbiterGroup = new ButtonGroup();
+        arbiterGroup.add(rrRadio);
+        arbiterGroup.add(priorityRadio);
+        arbiterGroup.add(lruRadio);
+
+        arbiterPanel.add(rrRadio);
+        arbiterPanel.add(priorityRadio);
+        arbiterPanel.add(lruRadio);
 
         // ===== Traffic Pattern =====
         JPanel trafficPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -123,6 +146,7 @@ public class SettingsPanel extends JPanel {
         // ===== Add all panels =====
         add(topologyPanel);
         add(routingPanel);
+        add(arbiterPanel);
         add(trafficPanel);
         add(dimensionsPanel);
         add(maxTicksPanel);
@@ -149,6 +173,15 @@ public class SettingsPanel extends JPanel {
             config.setRouting(RoutingType.OBLIVIOUS);
         } else {
             config.setRouting(RoutingType.ADAPTIVE);
+        }
+
+        // Arbiter
+        if (rrRadio.isSelected()) {
+            config.setArbiterType(ArbiterType.RR);
+        } else if (priorityRadio.isSelected()) {
+            config.setArbiterType(ArbiterType.PRIORITY);
+        } else {
+            config.setArbiterType(ArbiterType.LRU);
         }
 
         // Traffic pattern
@@ -211,6 +244,19 @@ public class SettingsPanel extends JPanel {
                 break;
             case ADAPTIVE:
                 adaptiveRadio.setSelected(true);
+                break;
+        }
+
+        // Arbiter
+        switch (config.getArbiterType()) {
+            case RR:
+                rrRadio.setSelected(true);
+                break;
+            case PRIORITY:
+                priorityRadio.setSelected(true);
+                break;
+            case LRU:
+                lruRadio.setSelected(true);
                 break;
         }
 

@@ -1,12 +1,13 @@
 package Interface.model;
 
-public enum TopologyType {
-    MESH("MESH"),
-    BUTTERFLY("BUTTERFLY");
+public enum ArbiterType {
+    RR("RR"),
+    PRIORITY("PRIORITY"),
+    LRU("LRU");
 
     private final String value;
 
-    TopologyType(String value) {
+    ArbiterType(String value) {
         this.value = value;
     }
 

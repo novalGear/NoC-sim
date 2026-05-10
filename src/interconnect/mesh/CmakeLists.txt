@@ -1,34 +1,18 @@
 # src/interconnect/mesh/CMakeLists.txt
-
 #=============================================================================
-# Mesh topology library
+# Mesh topology library (Header-only / Interface)
 #=============================================================================
 
-# Указываем, что это библиотека с именем mesh_lib
-add_library(mesh_lib STATIC
-    mesh.cpp
-    mesh_router.cpp
+add_library(mesh_lib INTERFACE)
+
+target_include_directories(mesh_lib INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}      # For #include "mesh.hpp"
+    ${CMAKE_CURRENT_SOURCE_DIR}/..   # For #include "../core/router.hpp"
 )
 
-# Указываем include директории для этой библиотеки
-target_include_directories(mesh_lib PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}  # Для #include "mesh.hpp" и т.д.
-    ${CMAKE_CURRENT_SOURCE_DIR}/..  # Для #include "../core/router.hpp" и т.д.
+target_link_libraries(mesh_lib INTERFACE
+    interconnect_core  # Depends on core
 )
 
-set_target_properties(mesh_lib PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED ON
-)
-
-# Указываем зависимости
-target_link_libraries(mesh_lib PUBLIC
-    interconnect_core  # Зависимость от core библиотеки
-)
-
-# Устанавливаем свойства компиляции
-target_compile_features(mesh_lib PUBLIC cxx_std_17)
-
-# Если нужно, можно добавить опции компиляции
-# target_compile_options(mesh_lib PRIVATE -Wall -Wextra)
+# C++ Standard requirements
+target_compile_features(mesh_lib INTERFACE cxx_std_17)
