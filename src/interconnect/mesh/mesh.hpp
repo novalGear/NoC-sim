@@ -21,9 +21,10 @@ class MeshInterconnectTest;
 */
 template <typename ArbiterT = RRArbiter>
 class MeshInterconnect final : public Interconnect<ArbiterT> {
-    // friend class MeshInterconnectTest;
 
 private:
+    friend class MeshInterconnectTest;
+
     int width_;   ///< Ширина сетки
     int height_;  ///< Высота сетки
     int total_nodes_;

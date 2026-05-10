@@ -2,7 +2,7 @@
 @file simulation_test.cpp
 @brief Tests for SimulationController.
 @author Novoselov Alexander
-@date 14/04/2026
+@date 10/05/2026
 */
 #include <gtest/gtest.h>
 #include "network/simulation_controller.hpp"

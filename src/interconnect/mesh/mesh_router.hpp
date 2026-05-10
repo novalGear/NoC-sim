@@ -10,27 +10,29 @@
 #include <cassert>
 #include <optional>
 
-class MeshInterconnectTest; // Forward declaration for tests if needed
+// Forward declaration for tests if needed
+class MeshRouterTest;
 
 /**
-@class MeshRouter
-@brief Маршрутизатор для двумерной Mesh топологии с X-Y маршрутизацией.
-@details
-MeshRouter расширяет базовый класс Router, добавляя:
-- Хранение координат в сетке
-- X-Y (dimension-order) маршрутизацию
-- Регистрацию портов по направлениям MeshDirection
+ * @class MeshRouter
+ * @brief Маршрутизатор для двумерной Mesh топологии с X-Y маршрутизацией.
+ * @details
+ * MeshRouter расширяет базовый класс Router, добавляя:
+ * - Хранение координат в сетке
+ * - X-Y (dimension-order) маршрутизацию
+ * - Регистрацию портов по направлениям MeshDirection
 */
 template <typename ArbiterT = RRArbiter>
 class MeshRouter final : public Router<ArbiterT> {
-    // friend class MeshInterconnectTest;
-    // friend class MeshInterconnect<ArbiterT>; // Раскомментировать если нужен доступ к private из интерконнекта
+    friend class MeshRouterTest;
 
 private:
     MeshCoords coords;           ///< Координаты в сетке
     int grid_width;              ///< Ширина всей сетки
     int grid_height;             ///< Высота всей сетки
 
+public:
+// protected:
     /**
      * @brief Реализация X-Y маршрутизации.
      * @param[in] pkt Пакет для маршрутизации
@@ -38,7 +40,7 @@ private:
      */
     [[nodiscard]] int route_pkt(const Packet& pkt) const override;
 
-public:
+// public:
     /**
     * @brief Конструктор MeshRouter.
     * @param[in] id Уникальный идентификатор роутера
