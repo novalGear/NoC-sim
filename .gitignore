@@ -2,3 +2,5 @@
 /docs
 *.class
 *.so
+
+journal.md
